@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{6458C1C9-1F78-49D4-80B4-16627A0F0669}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol", "Protocol\Protocol.csproj", "{800D5C33-2B6A-41D5-9FF6-E5D8F4313A60}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{6458C1C9-1F78-49D4-80B4-16627A0F0669}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6458C1C9-1F78-49D4-80B4-16627A0F0669}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6458C1C9-1F78-49D4-80B4-16627A0F0669}.Release|Any CPU.Build.0 = Release|Any CPU
+		{800D5C33-2B6A-41D5-9FF6-E5D8F4313A60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{800D5C33-2B6A-41D5-9FF6-E5D8F4313A60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{800D5C33-2B6A-41D5-9FF6-E5D8F4313A60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{800D5C33-2B6A-41D5-9FF6-E5D8F4313A60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
