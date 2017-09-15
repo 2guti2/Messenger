@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Protocol
+namespace Persistence
 {
-    public class Class1
+    public interface IStore
     {
     }
 }
