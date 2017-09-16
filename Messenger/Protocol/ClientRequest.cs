@@ -3,21 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Client;
-using Server;
+using Business;
 
 namespace Protocol
 {
     public class ClientRequest : IClientRequest
     {
-        private IServerRequest serverRequestManager;
 
-        public ClientRequest(IServerRequest serverRequestManager)
-        {
-            this.serverRequestManager = serverRequestManager;
-        }
+        public ClientRequest() { }
 
-        public bool ConnectToServer()
+        public bool ConnectToServer(string serverIp, Client client)
         {
             return false;
         }

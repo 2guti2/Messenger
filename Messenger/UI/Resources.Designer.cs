@@ -61,6 +61,24 @@ namespace UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connecting to server, please wait..
+        /// </summary>
+        internal static string ConnectingToServer {
+            get {
+                return ResourceManager.GetString("ConnectingToServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press any key to continue....
+        /// </summary>
+        internal static string PressKeyToContinue {
+            get {
+                return ResourceManager.GetString("PressKeyToContinue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Welcome to Messenger!.
         /// </summary>
         internal static string Welcome {
