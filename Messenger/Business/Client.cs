@@ -24,7 +24,7 @@ namespace Business
         public override bool Equals(object obj)
         {
             var toCompare = (Client) obj;
-            return base.Equals(toCompare);
+            return toCompare != null && Username.Equals(toCompare.Username);
         }
     }
 }
