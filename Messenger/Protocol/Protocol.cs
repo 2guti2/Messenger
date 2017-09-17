@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace Protocol
 {
+    /*
+        using Newtonsoft.Json;
+        Client client = new Client("2guti2", "123456");
+        string json = JsonConvert.SerializeObject(client);
+        Console.WriteLine(json);
+        Console.Read();
+        Client tmp = JsonConvert.DeserializeObject<Client>(json);
+    */
     public abstract class Protocol
     {
         protected void ReadData(Socket socket)

@@ -8,9 +8,10 @@ namespace Client
 {
     public class ClientController
     {
-        private IClientRequest clientRequestManager;
+        private ClientProtocol clientRequestManager;
+        private string clientToken;
 
-        public ClientController(IClientRequest clientRequestManager)
+        public ClientController(ClientProtocol clientRequestManager)
         {
             this.clientRequestManager = clientRequestManager;
         }

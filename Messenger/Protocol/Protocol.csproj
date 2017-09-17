@@ -40,8 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientRequest.cs" />
-    <Compile Include="IClientRequest.cs" />
+    <Compile Include="ClientProtocol.cs" />
     <Compile Include="IServerRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol.cs" />
@@ -49,9 +48,9 @@
     <Compile Include="ServerRequest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Client\Client.csproj">
-      <Project>{e1b026a0-e95d-491c-8c9a-00bd721b9d51}</Project>
-      <Name>Client</Name>
+    <ProjectReference Include="..\Business\Business.csproj">
+      <Project>{e764883e-01cc-4f85-b425-53a338c66862}</Project>
+      <Name>Business</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

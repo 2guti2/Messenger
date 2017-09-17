@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Business;
 using Protocol;
 
 namespace Client
@@ -13,7 +14,7 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            IClientRequest clientRequestManager = new ClientRequest();
+            var clientRequestManager = new ClientProtocol();
             var clientController = new ClientController(clientRequestManager);
             clientController.Init();
         }

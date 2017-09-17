@@ -7,12 +7,12 @@ using Business;
 
 namespace Protocol
 {
-    public class ClientRequest : IClientRequest
+    public class ClientProtocol : Protocol
     {
 
-        public ClientRequest() { }
+        public ClientProtocol() { }
 
-        public bool ConnectToServer(string serverIp, Client client)
+        public bool ConnectToServer(string serverIp, Business.Client client)
         {
             return false;
         }

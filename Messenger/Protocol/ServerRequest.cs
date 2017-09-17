@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Business;
+
 
 namespace Protocol
 {
-    public interface IClientRequest
+    public class ServerRequest : IServerRequest
     {
-        bool ConnectToServer(string serverIp, Client client);
     }
 }
