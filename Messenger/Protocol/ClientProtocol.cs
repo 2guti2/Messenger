@@ -1,5 +1,13 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Business;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Protocol
 {
@@ -7,6 +15,7 @@ namespace Protocol
     {
         private IPEndPoint ClientIpEndPoint { get; set; }
         private IPEndPoint ServerIpEndPoint { get; set; }
+        private string securityToken;
 
         public ClientProtocol(string serverIp, int serverPort, string clientIp = "127.0.0.1", int clientPort = 0)
         {
