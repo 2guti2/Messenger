@@ -1,20 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Business;
+﻿using System.Net;
+using System.Net.Sockets;
 
 namespace Protocol
 {
-    public class ClientProtocol : Protocol
+    public class ClientProtocol
     {
+        private IPEndPoint ClientIpEndPoint { get; set; }
+        private IPEndPoint ServerIpEndPoint { get; set; }
 
-        public ClientProtocol() { }
-
-        public bool ConnectToServer(string serverIp, Business.Client client)
+        public ClientProtocol(string serverIp, int serverPort, string clientIp = "127.0.0.1", int clientPort = 0)
         {
-            return false;
+            ClientIpEndPoint = new IPEndPoint(IPAddress.Parse(clientIp), clientPort);
+            ServerIpEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
+        }
+
+        public Connection ConnectToServer()
+        {
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            socket.Bind(ClientIpEndPoint);
+            socket.Connect(ServerIpEndPoint);
+
+            return new Connection(socket);
         }
     }
 }

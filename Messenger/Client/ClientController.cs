@@ -2,7 +2,6 @@
 using Protocol;
 using UI;
 using System.Configuration;
-using Business;
 
 namespace Client
 {
@@ -34,7 +33,8 @@ namespace Client
             do
             {
                 Business.Client client = AskForCredentials();
-                connected = clientRequestManager.ConnectToServer(serverIp, client);
+                connected = true;
+                var connection = clientRequestManager.ConnectToServer();
             } while (!connected);
         }
 

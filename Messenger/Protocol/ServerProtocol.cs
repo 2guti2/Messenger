@@ -1,42 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Protocol
 {
-    public class ServerProtocol : Protocol
+    public class ServerProtocol
     {
-        private Socket socket;
+        private Socket Socket { get; set; }
 
         public void Start(string ip, int port)
         {
             var serverIpEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
-            socket = new Socket(
+            Socket = new Socket(
                 AddressFamily.InterNetwork,
                 SocketType.Stream,
                 ProtocolType.Tcp);
 
-            socket.Bind(serverIpEndPoint);
-            socket.Listen(100);
+            Socket.Bind(serverIpEndPoint);
+            Socket.Listen(100);
         }
 
-        public void AcceptRequest()
+        public delegate void ConnectionDelegate(Connection connection);
+
+        public void ReceiveMessage(ConnectionDelegate onConnection)
         {
-            var clientSocket = socket.Accept();
-            var thread = new Thread(() => HandleClient(clientSocket));
+            if (onConnection == null) throw new ArgumentNullException(nameof(onConnection));
+
+            var clientSocket = Socket.Accept();
+            var thread = new Thread(() => onConnection(new Connection(clientSocket)));
             thread.Start();
-        }
-
-        private void HandleClient(Socket clientSocket)
-        {
-            ReadData(clientSocket);
-            Console.WriteLine("Client handled");
         }
     }
 }
