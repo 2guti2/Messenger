@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Protocol;
 using UI;
 using System.Configuration;
+using Business;
 
 namespace Client
 {
@@ -26,6 +27,27 @@ namespace Client
             Console.ReadKey();
 
             ConnectToServer();
+            PrintMenu();
+            ListConnectedUsers();
+        }
+
+        public void ListConnectedUsers()
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+
+            object[] request = { Command.ListOfConnectedUsers.GetHashCode(), clientToken };
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                PrintUsers(response.UserList());
+            }
+        }
+
+        public void PrintUsers(List<string> users)
+        {
+            users.ForEach(u => Console.WriteLine(u));
         }
 
         public void SendFriendshipRequest()
@@ -101,9 +123,14 @@ namespace Client
         private object[] BuildRequest(Command command, params object[] payload)
         {
             var request = new List<object>(payload);
-            request.Insert(0, new object[] {command.GetHashCode(), clientToken});
+            request.Insert(0, new object[] { command.GetHashCode(), clientToken });
 
             return request.ToArray();
+        }
+
+        public void PrintMenu()
+        {
+            Console.WriteLine("Menu goes here");
         }
     }
 }

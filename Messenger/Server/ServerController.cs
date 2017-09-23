@@ -3,6 +3,8 @@ using Business;
 using Business.Exceptions;
 using Persistence;
 using Protocol;
+using Persistence;
+using System.Collections.Generic;
 
 namespace Server
 {
@@ -55,6 +57,20 @@ namespace Server
         private Client CurrentClient(Request req)
         {
             return BussinessController.GetLoggedClient(req.UserToken());
+        }
+
+        internal void ListConnectedUsers(Connection conn, Request request)
+        {
+            if (IsTokenCorrect(request.Token))
+            {
+                object[] response = { ResponseCode.Ok.GetHashCode(), new string[] { "uno", "dos" } };
+                conn.SendMessage(response);
+            }
+        }
+
+        private bool IsTokenCorrect(string token)
+        {
+            return true;
         }
     }
 }
