@@ -46,5 +46,10 @@
         {
             return "Insert Password: ";
         }
+
+        public static string InvalidCredentials()
+        {
+            return "Wrong username or password";
+        }
     }
 }

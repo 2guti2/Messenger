@@ -1,5 +1,6 @@
 ﻿using Protocol;
 using System;
+using System.Threading;
 
 namespace Client
 {
@@ -7,6 +8,8 @@ namespace Client
     {
         static void Main(string[] args)
         {
+            var clientController = new ClientController();
+            clientController.Init();
         }
     }
 }

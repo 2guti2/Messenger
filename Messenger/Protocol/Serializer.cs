@@ -19,7 +19,7 @@ namespace Protocol
                 if (objectArray[i] is Array)
                     serializedObjects[i] = Serialize((object[]) objectArray[i], level + 1);
                 else
-                    serializedObjects[i] = (string) objectArray[i];
+                    serializedObjects[i] = objectArray[i].ToString();
             }
             
             var levelSeparator = level == 0 ? separators[0].ToString() : "";

@@ -2,17 +2,20 @@
 using Protocol;
 using UI;
 using System.Configuration;
+using Business;
 
 namespace Client
 {
     public class ClientController
     {
-        private ClientProtocol clientRequestManager;
+        private ClientProtocol clientProtocol;
         private string clientToken;
 
-        public ClientController(ClientProtocol clientRequestManager)
+        public ClientController()
         {
-            this.clientRequestManager = clientRequestManager;
+            string serverIp = GetServerIpFromConfigFile();
+            int serverPort = GetServerPortFromConfigFile();
+            this.clientProtocol = new ClientProtocol(serverIp, serverPort);
         }
 
         public void Init()
@@ -27,21 +30,33 @@ namespace Client
         public void ConnectToServer()
         {
             Console.WriteLine(ClientUI.Connecting());
-            string serverIp = GetServerIpFromConfigFile();
+            var connection = clientProtocol.ConnectToServer();
 
-            bool connected = false;
+            var connected = false;
             do
             {
                 Business.Client client = AskForCredentials();
-                connected = true;
-                var connection = clientRequestManager.ConnectToServer();
+                object[] request = {Command.Login.GetHashCode(), client.Username, client.Password};
+                connection.SendMessage(request);
+                var response = new Response(connection.ReadMessage());
+                connected = response.HadSuccess();
+                if (connected)
+                    clientToken = response.GetClientToken();
+                else
+                    Console.WriteLine(ClientUI.InvalidCredentials());
             } while (!connected);
         }
 
         private string GetServerIpFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (string)appSettings.GetValue("ServerIp", typeof(string));
+            return (string) appSettings.GetValue("ServerIp", typeof(string));
+        }
+
+        private int GetServerPortFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (int) appSettings.GetValue("ServerPort", typeof(int));
         }
 
         private Business.Client AskForCredentials()
