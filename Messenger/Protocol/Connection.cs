@@ -14,18 +14,20 @@ namespace Protocol
             Socket = socket;
         }
 
-        public void SendMessage(string message)
+        public void SendMessage(object[] message)
         {
-            var data = Encoding.ASCII.GetBytes(message);
+            string serializedMessage = Serializer.Serialize(message);
+            var data = Encoding.ASCII.GetBytes(serializedMessage);
             SendDataLength(data);
             SendData(data, data.Length);
         }
 
-        public string ReadMessage()
+        public string[][][] ReadMessage()
         {
             var dataLength = ReadDataLength();
             var dataReceived = ReadData(dataLength);
-            return Encoding.UTF8.GetString(dataReceived);
+            var message = Encoding.UTF8.GetString(dataReceived);
+            return Serializer.DeSerialize(message);
         }
 
         public void Close()

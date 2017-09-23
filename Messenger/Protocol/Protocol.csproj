@@ -45,9 +45,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientProtocol.cs" />
+    <Compile Include="Command.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="IServerRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request.cs" />
+    <Compile Include="Response.cs" />
+    <Compile Include="ResponseCode.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="ServerProtocol.cs" />
     <Compile Include="ServerRequest.cs" />

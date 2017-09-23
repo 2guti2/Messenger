@@ -10,6 +10,12 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            var server = new ServerProtocol();
+            server.Start("127.0.0.1", 6500);
+            while (true)
+            {
+                server.AcceptConnection(Router.Handle);
+            }
         }
     }
 }

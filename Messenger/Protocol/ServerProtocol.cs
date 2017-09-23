@@ -34,7 +34,7 @@ namespace Protocol
 
         public delegate void ConnectionDelegate(Connection connection);
 
-        public void ReceiveMessage(ConnectionDelegate onConnection)
+        public void AcceptConnection(ConnectionDelegate onConnection)
         {
             if (onConnection == null) throw new ArgumentNullException(nameof(onConnection));
 
