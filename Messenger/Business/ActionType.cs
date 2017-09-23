@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DependencyInjector
+namespace Business
 {
-    public class Class1
-    {
-    }
+    public enum ActionType { Connect, UserList };
 }

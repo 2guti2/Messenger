@@ -1,4 +1,5 @@
 ﻿using Protocol;
+using System;
 
 namespace Client
 {
@@ -6,7 +7,6 @@ namespace Client
     {
         static void Main(string[] args)
         {
-       
         }
     }
 }

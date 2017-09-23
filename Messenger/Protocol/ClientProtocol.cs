@@ -1,12 +1,14 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
+
 namespace Protocol
 {
     public class ClientProtocol
     {
         private IPEndPoint ClientIpEndPoint { get; set; }
         private IPEndPoint ServerIpEndPoint { get; set; }
+        private string securityToken;
 
         public ClientProtocol(string serverIp, int serverPort, string clientIp = "127.0.0.1", int clientPort = 0)
         {
