@@ -28,5 +28,10 @@ namespace Business
             cryptRng.GetBytes(tokenBuffer);
             return Convert.ToBase64String(tokenBuffer);
         }
+
+        public Client GetLoggedClient(string token)
+        {
+            return ConnectedClients[token];
+        }
     }
 }

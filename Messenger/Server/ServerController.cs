@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Business;
+using Business.Exceptions;
 using Persistence;
 using Protocol;
 
@@ -22,12 +23,26 @@ namespace Server
             conn.SendMessage(response);
         }
 
+        public void FriendshipRequest(Connection conn, Request req)
+        {
+            try
+            {
+                string username = req.Username();
+                Client loggedUser = CurrentClient(req);
+                BussinessController.FriendshipRequest(loggedUser, username);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, "Friendship request sent"));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+        }
+
         public void InvalidCommand(Connection conn, Request req)
         {
             object[] response = BuildResponse(ResponseCode.BadRequest, "Unrecognizable command");
             conn.SendMessage(response);
         }
-
 
         private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
         {
@@ -35,6 +50,11 @@ namespace Server
             responseList.Insert(0, responseCode.GetHashCode());
 
             return responseList.ToArray();
+        }
+
+        private Client CurrentClient(Request req)
+        {
+            return BussinessController.GetLoggedClient(req.UserToken());
         }
     }
 }

@@ -56,5 +56,10 @@
         {
             return "Logged in successfully";
         }
+
+        public static string PromptUsername()
+        {
+            return "Enter a username";
+        }
     }
 }

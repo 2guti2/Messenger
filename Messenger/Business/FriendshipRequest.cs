@@ -1,10 +1,14 @@
-﻿namespace Business
+﻿using System.Runtime.Remoting.Channels;
+
+namespace Business
 {
     public class FriendshipRequest
     {
-        public FriendshipRequest()
+        public FriendshipRequest(Client sender, Client receiver)
         {
-
+            Sender = sender;
+            Receiver = receiver;
+            IsAccepted = false;
         }
 
         public Client Sender { get; set; }
