@@ -2,7 +2,6 @@
 using Protocol;
 using UI;
 using System.Configuration;
-using Business;
 
 namespace Client
 {
@@ -27,23 +26,28 @@ namespace Client
             ConnectToServer();
         }
 
-        public void ConnectToServer()
+        private void ConnectToServer()
         {
             Console.WriteLine(ClientUI.Connecting());
-            var connection = clientProtocol.ConnectToServer();
-
             var connected = false;
             do
             {
+                var connection = clientProtocol.ConnectToServer();
                 Business.Client client = AskForCredentials();
                 object[] request = {Command.Login.GetHashCode(), client.Username, client.Password};
                 connection.SendMessage(request);
                 var response = new Response(connection.ReadMessage());
                 connected = response.HadSuccess();
                 if (connected)
+                {
                     clientToken = response.GetClientToken();
+                    Console.WriteLine(ClientUI.LoginSuccessful());
+                }
                 else
+                {
                     Console.WriteLine(ClientUI.InvalidCredentials());
+                }
+                connection.Close();
             } while (!connected);
         }
 

@@ -22,5 +22,10 @@ namespace Business
             var toCompare = (Client) obj;
             return toCompare != null && Username.Equals(toCompare.Username);
         }
+
+        public bool ValidatePassword(string clientPassword)
+        {
+            return Password.Equals(clientPassword);
+        }
     }
 }

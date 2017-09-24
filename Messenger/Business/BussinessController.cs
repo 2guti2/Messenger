@@ -11,13 +11,16 @@
             Server = new Server();
         }
 
-        public void Login(Client client)
+        public string Login(Client client)
         {
             if (!Store.ClientExists(client))
             {
                 Store.AddClient(client);
             }
-            Server.ConnectClient(client);
+            var storedClient = Store.GetClient(client.Username);
+            bool isValidPassword = storedClient.ValidatePassword(client.Password);
+
+            return isValidPassword ? Server.ConnectClient(client) : "";
         }
     }
 }

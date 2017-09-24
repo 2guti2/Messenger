@@ -4,5 +4,6 @@
     {
         bool ClientExists(Client client);
         void AddClient(Client client);
+        Client GetClient(string clientUsername);
     }
 }

@@ -1,33 +1,40 @@
-﻿using System;
-using System.Security.Cryptography;
-using System.Security.Principal;
+﻿using System.Collections.Generic;
 using Business;
+using Persistence;
 using Protocol;
 
 namespace Server
 {
     public class ServerController
     {
+        private readonly BussinessController BussinessController = new BussinessController(new Store());
+
         public void ConnectClient(Connection conn, Request req)
         {
-            var token = GenerateRandomToken();
-            Console.WriteLine("Sent token: " + token);
-            object[] response = {ResponseCode.Ok.GetHashCode(), token};
+            var client = new Client(req.Username(), req.Password());
+            string token = BussinessController.Login(client);
+
+            object[] response;
+            if (string.IsNullOrEmpty(token))
+                response = BuildResponse(ResponseCode.NotFound, "Client not found");
+            else
+                response = BuildResponse(ResponseCode.Ok, token);
             conn.SendMessage(response);
         }
 
         public void InvalidCommand(Connection conn, Request req)
         {
-            object[] response = {ResponseCode.BadRequest.GetHashCode(), "Unrecognizable command"};
+            object[] response = BuildResponse(ResponseCode.BadRequest, "Unrecognizable command");
             conn.SendMessage(response);
         }
-        
-        public static string GenerateRandomToken(int length = 8)
+
+
+        private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
         {
-            RNGCryptoServiceProvider cryptRNG = new RNGCryptoServiceProvider();
-            byte[] tokenBuffer = new byte[length];
-            cryptRNG.GetBytes(tokenBuffer);
-            return Convert.ToBase64String(tokenBuffer);
+            var responseList = new List<object>(payload);
+            responseList.Insert(0, responseCode.GetHashCode());
+
+            return responseList.ToArray();
         }
     }
 }
