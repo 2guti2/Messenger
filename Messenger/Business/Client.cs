@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Business.Exceptions;
 
 namespace Business
 {
@@ -21,7 +22,7 @@ namespace Business
 
         public override bool Equals(object obj)
         {
-            var toCompare = (Client) obj;
+            Client toCompare = (Client) obj;
             return toCompare != null && Username.Equals(toCompare.Username);
         }
 
@@ -33,6 +34,24 @@ namespace Business
         public void AddFriendshipRequest(Client sender)
         {
             FriendshipRequests.Add(new FriendshipRequest(sender, this));
+        }
+
+        public FriendshipRequest ConfirmRequest(string requestId)
+        {
+            FriendshipRequest request = FriendshipRequests.Find(r => r.Id.ToString().Equals(requestId));
+            if (request == null)
+                throw new RecordNotFoundException("The request was not found");
+            AddFriend(request.Sender);
+            request.Sender.AddFriend(this);
+            
+            FriendshipRequests.Remove(request);
+
+            return request;
+        }
+
+        private void AddFriend(Client client)
+        {
+            Friends.Add(client);
         }
     }
 }

@@ -5,5 +5,7 @@
         FriendshipRequest,
         ListOfConnectedUsers,
         Login,
+        GetFriendshipRequests,
+        ConfirmFriendshipRequest
     }
 }

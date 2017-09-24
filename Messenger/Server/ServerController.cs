@@ -3,25 +3,29 @@ using Business;
 using Business.Exceptions;
 using Persistence;
 using Protocol;
-using System;
 
 namespace Server
 {
     public class ServerController
     {
-        private readonly BussinessController BussinessController = new BussinessController(new Store());
+        private readonly BusinessController businessController = new BusinessController(new Store());
 
         public void ConnectClient(Connection conn, Request req)
         {
-            var client = new Client(req.Username(), req.Password());
-            string token = BussinessController.Login(client);
+            try
+            {
+                var client = new Client(req.Username(), req.Password());
+                string token = businessController.Login(client);
 
-            object[] response;
-            if (string.IsNullOrEmpty(token))
-                response = BuildResponse(ResponseCode.NotFound, "Client not found");
-            else
-                response = BuildResponse(ResponseCode.Ok, token);
-            conn.SendMessage(response);
+                object[] response = string.IsNullOrEmpty(token)
+                    ? BuildResponse(ResponseCode.NotFound, "Client not found")
+                    : BuildResponse(ResponseCode.Ok, token);
+                conn.SendMessage(response);
+            }
+            catch (ClientAlreadyConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
         }
 
         public void FriendshipRequest(Connection conn, Request req)
@@ -30,19 +34,80 @@ namespace Server
             {
                 string username = req.Username();
                 Client loggedUser = CurrentClient(req);
-                BussinessController.FriendshipRequest(loggedUser, username);
+                businessController.FriendshipRequest(loggedUser, username);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok, "Friendship request sent"));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void GetFriendshipRequests(Connection conn, Request req)
+        {
+            try
+            {
+                Client currentClient = CurrentClient(req);
+                string[][] requests = businessController.GetFriendshipRequests(currentClient);
+                object[] response = BuildResponse(ResponseCode.Ok, requests);
+                conn.SendMessage(response);
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void ConfirmFriendshipRequest(Connection conn, Request req)
+        {
+            try
+            {
+                Client currentClient = CurrentClient(req);
+                string requestId = req.FriendshipRequestId();
+                FriendshipRequest friendshipRequest =
+                    businessController.ConfirmFriendshipRequest(currentClient, requestId);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, friendshipRequest.Sender.Username));
             }
             catch (RecordNotFoundException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
             }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
         }
 
-        public void InvalidCommand(Connection conn, Request req)
+        public void InvalidCommand(Connection conn)
         {
             object[] response = BuildResponse(ResponseCode.BadRequest, "Unrecognizable command");
             conn.SendMessage(response);
+        }
+
+        public void ListConnectedUsers(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Client> connectedUsers = businessController.GetLoggedClients();
+                var connectedUsernames = new List<string>();
+
+                connectedUsers.ForEach(c => connectedUsernames.Add(c.Username));
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, connectedUsernames.ToArray()));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
         }
 
         private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
@@ -55,25 +120,7 @@ namespace Server
 
         private Client CurrentClient(Request req)
         {
-            return BussinessController.GetLoggedClient(req.UserToken());
-        }
-
-        internal void ListConnectedUsers(Connection conn, Request request)
-        {
-            try
-            {
-                Client loggedUser = CurrentClient(request);
-                List<Client> connectedUsers = BussinessController.GetLoggedClients();
-                var connectedUsernames = new List<string>();
-
-                connectedUsers.ForEach(c => connectedUsernames.Add(c.Username));
-
-                conn.SendMessage(BuildResponse(ResponseCode.Ok, connectedUsernames.ToArray()));
-            }
-            catch (RecordNotFoundException e)
-            {
-                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
-            }
+            return businessController.GetLoggedClient(req.UserToken());
         }
     }
 }
