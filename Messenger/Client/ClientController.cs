@@ -34,14 +34,14 @@ namespace Client
         public void ListConnectedUsers()
         {
             Connection connection = clientProtocol.ConnectToServer();
-
-            object[] request = { Command.ListOfConnectedUsers.GetHashCode(), clientToken };
+            object [] request = BuildRequest(Command.ListOfConnectedUsers);
             connection.SendMessage(request);
 
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
                 PrintUsers(response.UserList());
+                Console.Read();
             }
         }
 
@@ -122,7 +122,7 @@ namespace Client
 
         private object[] BuildRequest(Command command, params object[] payload)
         {
-            var request = new List<object>(payload);
+            List<object> request = new List<object>(payload);
             request.Insert(0, new object[] { command.GetHashCode(), clientToken });
 
             return request.ToArray();

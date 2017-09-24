@@ -3,8 +3,7 @@ using Business;
 using Business.Exceptions;
 using Persistence;
 using Protocol;
-using Persistence;
-using System.Collections.Generic;
+using System;
 
 namespace Server
 {
@@ -61,16 +60,20 @@ namespace Server
 
         internal void ListConnectedUsers(Connection conn, Request request)
         {
-            if (IsTokenCorrect(request.Token))
+            try
             {
-                object[] response = { ResponseCode.Ok.GetHashCode(), new string[] { "uno", "dos" } };
-                conn.SendMessage(response);
-            }
-        }
+                Client loggedUser = CurrentClient(request);
+                List<Client> connectedUsers = BussinessController.GetLoggedClients();
+                var connectedUsernames = new List<string>();
 
-        private bool IsTokenCorrect(string token)
-        {
-            return true;
+                connectedUsers.ForEach(c => connectedUsernames.Add(c.Username));
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, connectedUsernames.ToArray()));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
         }
     }
 }

@@ -33,5 +33,17 @@ namespace Business
         {
             return ConnectedClients[token];
         }
+
+        internal List<Client> GetLoggedClients()
+        {
+            var clients = new List<Client>();
+
+            foreach(KeyValuePair<string, Client> keyValuePair in ConnectedClients)
+            {
+                clients.Add(keyValuePair.Value);
+            }
+
+            return clients;
+        }
     }
 }

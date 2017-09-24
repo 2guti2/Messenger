@@ -36,7 +36,10 @@ namespace Protocol
 
         public List<string> UserList()
         {
-            return new List<string>();
+            var users = new List<string>();
+            for(int i=1; i<responseObject.Length; i++)
+                users.Add(responseObject[i][0][0]);
+            return users;
         }
     }
 }
