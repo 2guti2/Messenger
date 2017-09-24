@@ -21,5 +21,10 @@ namespace Persistence
         {
             Clients.Add(client);
         }
+
+        public Client GetClient(string clientUsername)
+        {
+            return Clients.Find(client => client.Username.Equals(clientUsername));
+        }
     }
 }

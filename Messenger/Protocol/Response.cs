@@ -4,8 +4,7 @@ namespace Protocol
 {
     public class Response
     {
-
-        private readonly string[][][] responseObject; 
+        private readonly string[][][] responseObject;
 
         public Response(string[][][] response)
         {
@@ -26,7 +25,7 @@ namespace Protocol
 
         private bool HasCode(ResponseCode responseCode)
         {
-            return ResponseCode != null &&  responseCode.GetHashCode() == int.Parse(ResponseCode);
+            return ResponseCode != null && responseCode.GetHashCode() == int.Parse(ResponseCode);
         }
     }
 }

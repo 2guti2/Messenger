@@ -51,5 +51,10 @@
         {
             return "Wrong username or password";
         }
+
+        public static string LoginSuccessful()
+        {
+            return "Logged in successfully";
+        }
     }
 }
