@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Business
 {
-    public class BussinessController
+    public class BusinessController
     {
         private IStore Store { get; set; }
         private Server Server { get; set; }
 
-        public BussinessController(IStore store)
+        public BusinessController(IStore store)
         {
             Store = store;
             Server = new Server();
@@ -20,8 +20,16 @@ namespace Business
                 Store.AddClient(client);
             Client storedClient = Store.GetClient(client.Username);
             bool isValidPassword = storedClient.ValidatePassword(client.Password);
-
-            return isValidPassword ? Server.ConnectClient(client) : "";
+            bool isClientConnected = Server.IsClientConnected(client);
+            if (isValidPassword && !isClientConnected)
+            {
+                return Server.ConnectClient(client);
+            }
+            if (!isValidPassword)
+            {
+                return "";
+            }
+            throw new ClientAlreadyConnectedException();
         }
 
         public void FriendshipRequest(Client sender, string receiverUsername)
@@ -36,13 +44,29 @@ namespace Business
         {
             Client loggedUser = Server.GetLoggedClient(userToken);
             if (loggedUser == null)
-                throw new RecordNotFoundException("Client is not logged in");
+                throw new ClientNotConnectedException();
             return loggedUser;
         }
 
         public List<Client> GetLoggedClients()
         {
             return Server.GetLoggedClients();
+        }
+
+        public string[][] GetFriendshipRequests(Client currentClient)
+        {
+            List<FriendshipRequest> requests = currentClient.FriendshipRequests;
+            string[][] formattedRequests = new string[requests.Count][];
+            for (int i = 0; i < requests.Count; i++)
+            {
+                formattedRequests[i] = new[] {requests[i].Id.ToString(), requests[i].Sender.Username};
+            }
+            return formattedRequests;
+        }
+
+        public FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId)
+        {
+            return currentClient.ConfirmRequest(requestId);
         }
     }
 }

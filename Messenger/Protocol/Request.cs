@@ -29,5 +29,10 @@ namespace Protocol
         {
             return requestObject[0][1][0];
         }
+
+        public string FriendshipRequestId()
+        {
+            return requestObject[1][0][0];
+        }
     }
 }

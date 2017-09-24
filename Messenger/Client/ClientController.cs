@@ -27,27 +27,19 @@ namespace Client
             Console.ReadKey();
 
             ConnectToServer();
-            PrintMenu();
-            ListConnectedUsers();
         }
 
         public void ListConnectedUsers()
         {
             Connection connection = clientProtocol.ConnectToServer();
-            object [] request = BuildRequest(Command.ListOfConnectedUsers);
+            object[] request = BuildRequest(Command.ListOfConnectedUsers);
             connection.SendMessage(request);
 
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
                 PrintUsers(response.UserList());
-                Console.Read();
             }
-        }
-
-        public void PrintUsers(List<string> users)
-        {
-            users.ForEach(u => Console.WriteLine(u));
         }
 
         public void SendFriendshipRequest()
@@ -55,7 +47,7 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
 
             Console.WriteLine(ClientUI.PromptUsername());
-            string username = Console.ReadLine();
+            string username = Input.RequestString();
             object[] request = BuildRequest(Command.FriendshipRequest, username);
 
             connection.SendMessage(request);
@@ -70,14 +62,45 @@ namespace Client
             }
         }
 
+        public void AcceptFriendshipRequest()
+        {
+            string[][] requests = GetFriendshipRequests();
+            string requestId = Menus.SelectRequest(requests);
+            Connection conn = clientProtocol.ConnectToServer();
+            conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
+            var response = new Response(conn.ReadMessage());
+            if (response.HadSuccess())
+            {
+                Console.WriteLine("Added " + response.GetUsername() + " as a friend");
+            }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+            }
+        }
+
+        private string[][] GetFriendshipRequests()
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            connection.SendMessage(BuildRequest(Command.GetFriendshipRequests));
+            var response = new Response(connection.ReadMessage());
+
+            return response.FriendshipRequests();
+        }
+
+        private void PrintUsers(List<string> users)
+        {
+            users.ForEach(u => Console.WriteLine(u));
+        }
+
         private void ConnectToServer()
         {
             Console.WriteLine(ClientUI.Connecting());
             bool connected;
             do
             {
-                Connection connection = clientProtocol.ConnectToServer();
                 Business.Client client = AskForCredentials();
+                Connection connection = clientProtocol.ConnectToServer();
                 object[] request = BuildRequest(Command.Login, client.Username, client.Password);
                 connection.SendMessage(request);
                 var response = new Response(connection.ReadMessage());
@@ -112,10 +135,10 @@ namespace Client
             Console.WriteLine(ClientUI.LoginTitle());
 
             Console.WriteLine(ClientUI.InsertUsername());
-            string username = Console.ReadLine();
+            string username = Input.RequestString();
 
             Console.WriteLine(ClientUI.InsertPassword());
-            string password = Console.ReadLine();
+            string password = Input.RequestString();
 
             return new Business.Client(username, password);
         }
@@ -123,7 +146,7 @@ namespace Client
         private object[] BuildRequest(Command command, params object[] payload)
         {
             List<object> request = new List<object>(payload);
-            request.Insert(0, new object[] { command.GetHashCode(), clientToken });
+            request.Insert(0, new object[] {command.GetHashCode(), clientToken});
 
             return request.ToArray();
         }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Remoting.Channels;
+﻿using System;
+using System.Runtime.Remoting.Channels;
 
 namespace Business
 {
@@ -8,11 +9,11 @@ namespace Business
         {
             Sender = sender;
             Receiver = receiver;
-            IsAccepted = false;
+            Id = Guid.NewGuid();
         }
 
+        public Guid Id { get; }
         public Client Sender { get; set; }
         public Client Receiver { get; set; }
-        public bool IsAccepted { get; set; }
     }
 }

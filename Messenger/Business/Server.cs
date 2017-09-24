@@ -34,6 +34,11 @@ namespace Business
             return ConnectedClients[token];
         }
 
+        public bool IsClientConnected(Client client)
+        {
+            return ConnectedClients.ContainsValue(client);
+        }
+
         internal List<Client> GetLoggedClients()
         {
             var clients = new List<Client>();
