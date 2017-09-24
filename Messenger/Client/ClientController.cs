@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Protocol;
 using UI;
 using System.Configuration;
@@ -7,14 +8,15 @@ namespace Client
 {
     public class ClientController
     {
-        private ClientProtocol clientProtocol;
+        private readonly ClientProtocol clientProtocol;
         private string clientToken;
 
         public ClientController()
         {
+            clientToken = "";
             string serverIp = GetServerIpFromConfigFile();
             int serverPort = GetServerPortFromConfigFile();
-            this.clientProtocol = new ClientProtocol(serverIp, serverPort);
+            clientProtocol = new ClientProtocol(serverIp, serverPort);
         }
 
         public void Init()
@@ -26,15 +28,35 @@ namespace Client
             ConnectToServer();
         }
 
+        public void SendFriendshipRequest()
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+
+            Console.WriteLine(ClientUI.PromptUsername());
+            string username = Console.ReadLine();
+            object[] request = BuildRequest(Command.FriendshipRequest, username);
+
+            connection.SendMessage(request);
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                Console.WriteLine("Success");
+            }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+            }
+        }
+
         private void ConnectToServer()
         {
             Console.WriteLine(ClientUI.Connecting());
-            var connected = false;
+            bool connected;
             do
             {
-                var connection = clientProtocol.ConnectToServer();
+                Connection connection = clientProtocol.ConnectToServer();
                 Business.Client client = AskForCredentials();
-                object[] request = {Command.Login.GetHashCode(), client.Username, client.Password};
+                object[] request = BuildRequest(Command.Login, client.Username, client.Password);
                 connection.SendMessage(request);
                 var response = new Response(connection.ReadMessage());
                 connected = response.HadSuccess();
@@ -74,6 +96,14 @@ namespace Client
             string password = Console.ReadLine();
 
             return new Business.Client(username, password);
+        }
+
+        private object[] BuildRequest(Command command, params object[] payload)
+        {
+            var request = new List<object>(payload);
+            request.Insert(0, new object[] {command.GetHashCode(), clientToken});
+
+            return request.ToArray();
         }
     }
 }

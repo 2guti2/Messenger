@@ -2,6 +2,7 @@
 {
     public enum Command
     {
-        Login
+        Login,
+        FriendshipRequest
     }
 }

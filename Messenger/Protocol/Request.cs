@@ -4,7 +4,7 @@ namespace Protocol
 {
     public class Request
     {
-        protected readonly string[][][] requestObject;
+        private readonly string[][][] requestObject;
 
         public Request(string[][][] request)
         {
@@ -21,6 +21,11 @@ namespace Protocol
         public string Password()
         {
             return requestObject[2][0][0];
+        }
+
+        public string UserToken()
+        {
+            return requestObject[0][1][0];
         }
     }
 }

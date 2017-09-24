@@ -23,6 +23,11 @@ namespace Protocol
             return responseObject[1][0][0];
         }
 
+        public string ErrorMessage()
+        {
+            return responseObject[1][0][0];
+        }
+
         private bool HasCode(ResponseCode responseCode)
         {
             return ResponseCode != null && responseCode.GetHashCode() == int.Parse(ResponseCode);

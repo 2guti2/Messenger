@@ -2,13 +2,15 @@
 
 namespace Business
 {
-    #pragma warning disable CS0659
     public class Client
     {
         public Client(string username, string password)
         {
             Username = username;
             Password = password;
+            Friends = new List<Client>();
+            FriendshipRequests = new List<FriendshipRequest>();
+            Conversations = new List<Conversation>();
         }
 
         public string Username { get; set; }
@@ -26,6 +28,11 @@ namespace Business
         public bool ValidatePassword(string clientPassword)
         {
             return Password.Equals(clientPassword);
+        }
+
+        public void AddFriendshipRequest(Client sender)
+        {
+            FriendshipRequests.Add(new FriendshipRequest(sender, this));
         }
     }
 }

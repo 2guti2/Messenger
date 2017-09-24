@@ -16,6 +16,9 @@ namespace Server
                 case Command.Login:
                     serverController.ConnectClient(conn, request);
                     break;
+                case Command.FriendshipRequest:
+                    serverController.FriendshipRequest(conn, request);
+                    break;
                 default:
                     serverController.InvalidCommand(conn, request);
                     break;
