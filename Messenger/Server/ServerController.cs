@@ -3,6 +3,7 @@ using Business;
 using Business.Exceptions;
 using Persistence;
 using Protocol;
+using System;
 
 namespace Server
 {
@@ -55,6 +56,24 @@ namespace Server
         private Client CurrentClient(Request req)
         {
             return BussinessController.GetLoggedClient(req.UserToken());
+        }
+
+        internal void ListConnectedUsers(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Client> connectedUsers = BussinessController.GetLoggedClients();
+                var connectedUsernames = new List<string>();
+
+                connectedUsers.ForEach(c => connectedUsernames.Add(c.Username));
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, connectedUsernames.ToArray()));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
         }
     }
 }

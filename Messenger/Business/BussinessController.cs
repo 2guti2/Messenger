@@ -1,4 +1,5 @@
 ﻿using Business.Exceptions;
+using System.Collections.Generic;
 
 namespace Business
 {
@@ -37,6 +38,11 @@ namespace Business
             if (loggedUser == null)
                 throw new RecordNotFoundException("Client is not logged in");
             return loggedUser;
+        }
+
+        public List<Client> GetLoggedClients()
+        {
+            return Server.GetLoggedClients();
         }
     }
 }

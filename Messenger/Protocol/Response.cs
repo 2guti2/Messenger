@@ -1,4 +1,5 @@
 ﻿using Business;
+using System.Collections.Generic;
 
 namespace Protocol
 {
@@ -31,6 +32,14 @@ namespace Protocol
         private bool HasCode(ResponseCode responseCode)
         {
             return ResponseCode != null && responseCode.GetHashCode() == int.Parse(ResponseCode);
+        }
+
+        public List<string> UserList()
+        {
+            var users = new List<string>();
+            for(int i=1; i<responseObject.Length; i++)
+                users.Add(responseObject[i][0][0]);
+            return users;
         }
     }
 }
