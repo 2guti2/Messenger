@@ -110,6 +110,11 @@ namespace Server
             }
         }
 
+        public void DisconnectUser(Connection conn, Request request)
+        {
+            businessController.DisconnectClient(request.UserToken());
+        }
+
         private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
         {
             var responseList = new List<object>(payload);

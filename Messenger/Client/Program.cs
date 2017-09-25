@@ -36,7 +36,6 @@ namespace Client
                 {
                     "List Connected Users",
                     "Send Friendship Request",
-                    "Send Friendship Request",
                     "Accept Friendship Request",
                     "Exit"
                 });
@@ -53,12 +52,10 @@ namespace Client
                     clientController.SendFriendshipRequest();
                     break;
                 case 3:
-                    clientController.SendFriendshipRequest();
-                    break;
-                case 4:
                     clientController.AcceptFriendshipRequest();
                     break;
                 default:
+                    clientController.DisconnectFromServer();
                     Environment.Exit(0);
                     break;
             }
