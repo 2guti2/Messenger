@@ -13,26 +13,12 @@ namespace Protocol
 
         public Command Command => (Command) int.Parse(requestObject[0][0][0]);
 
-        public string Token => requestObject[1][0][0];
+        public string Username() => requestObject[1][0][0];
 
-        public string Username()
-        {
-            return requestObject[1][0][0];
-        }
+        public string Password() => requestObject[2][0][0];
 
-        public string Password()
-        {
-            return requestObject[2][0][0];
-        }
+        public string UserToken() => requestObject[0][1][0];
 
-        public string UserToken()
-        {
-            return requestObject[0][1][0];
-        }
-
-        public string FriendshipRequestId()
-        {
-            return requestObject[1][0][0];
-        }
+        public string FriendshipRequestId() => requestObject[1][0][0];
     }
 }

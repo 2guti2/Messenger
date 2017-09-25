@@ -21,15 +21,10 @@ namespace Business
             Client storedClient = Store.GetClient(client.Username);
             bool isValidPassword = storedClient.ValidatePassword(client.Password);
             bool isClientConnected = Server.IsClientConnected(client);
-            if (isValidPassword && !isClientConnected)
-            {
-                return Server.ConnectClient(client);
-            }
-            if (!isValidPassword)
-            {
-                return "";
-            }
-            throw new ClientAlreadyConnectedException();
+            if (isValidPassword && isClientConnected)
+                throw new ClientAlreadyConnectedException();
+
+            return isValidPassword ? Server.ConnectClient(storedClient) : "";
         }
 
         public void FriendshipRequest(Client sender, string receiverUsername)
@@ -51,6 +46,11 @@ namespace Business
         public List<Client> GetLoggedClients()
         {
             return Server.GetLoggedClients();
+        }
+
+        public void DisconnectClient(string token)
+        {
+            Server.DisconnectClient(token);
         }
 
         public string[][] GetFriendshipRequests(Client currentClient)

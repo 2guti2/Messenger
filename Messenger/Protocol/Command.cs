@@ -6,6 +6,7 @@
         ListOfConnectedUsers,
         Login,
         GetFriendshipRequests,
-        ConfirmFriendshipRequest
+        ConfirmFriendshipRequest,
+        DisconnectUser
     }
 }

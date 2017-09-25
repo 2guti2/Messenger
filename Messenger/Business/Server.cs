@@ -39,6 +39,11 @@ namespace Business
             return ConnectedClients.ContainsValue(client);
         }
 
+        public void DisconnectClient(string token)
+        {
+            ConnectedClients.Remove(token);
+        }
+
         internal List<Client> GetLoggedClients()
         {
             var clients = new List<Client>();

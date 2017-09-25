@@ -31,12 +31,15 @@ namespace Server
                     case Command.ConfirmFriendshipRequest:
                         serverController.ConfirmFriendshipRequest(conn, request);
                         break;
+                    case Command.DisconnectUser:
+                        serverController.DisconnectUser(conn, request);
+                        break;
                     default:
                         serverController.InvalidCommand(conn);
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 conn.SendMessage(new object[] {ResponseCode.InternalServerError, "There was a problem in the server"});
             }

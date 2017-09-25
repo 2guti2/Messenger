@@ -40,6 +40,7 @@ namespace Client
             {
                 PrintUsers(response.UserList());
             }
+            connection.Close();
         }
 
         public void SendFriendshipRequest()
@@ -60,23 +61,38 @@ namespace Client
             {
                 Console.WriteLine(response.ErrorMessage());
             }
+            connection.Close();
         }
 
         public void AcceptFriendshipRequest()
         {
             string[][] requests = GetFriendshipRequests();
-            string requestId = Menus.SelectRequest(requests);
-            Connection conn = clientProtocol.ConnectToServer();
-            conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
-            var response = new Response(conn.ReadMessage());
-            if (response.HadSuccess())
+            if (requests.Length > 0)
             {
-                Console.WriteLine("Added " + response.GetUsername() + " as a friend");
+                string requestId = Menus.SelectRequest(requests);
+                Connection conn = clientProtocol.ConnectToServer();
+                conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
+                var response = new Response(conn.ReadMessage());
+                if (response.HadSuccess())
+                {
+                    Console.WriteLine("Added " + response.GetUsername() + " as a friend");
+                }
+                else
+                {
+                    Console.WriteLine(response.ErrorMessage());
+                }
+                conn.Close();
             }
             else
             {
-                Console.WriteLine(response.ErrorMessage());
+                Console.WriteLine("No friendship requests");
             }
+        }
+
+        public void DisconnectFromServer()
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            connection.SendMessage(BuildRequest(Command.DisconnectUser));
         }
 
         private string[][] GetFriendshipRequests()
@@ -85,6 +101,7 @@ namespace Client
             connection.SendMessage(BuildRequest(Command.GetFriendshipRequests));
             var response = new Response(connection.ReadMessage());
 
+            connection.Close();
             return response.FriendshipRequests();
         }
 
@@ -112,7 +129,7 @@ namespace Client
                 }
                 else
                 {
-                    Console.WriteLine(ClientUI.InvalidCredentials());
+                    Console.WriteLine(response.ErrorMessage());
                 }
                 connection.Close();
             } while (!connected);
