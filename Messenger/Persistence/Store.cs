@@ -14,7 +14,7 @@ namespace Persistence
 
         public bool ClientExists(Client client)
         {
-           return Clients.Contains(client);
+            return Clients.Contains(client);
         }
 
         public void AddClient(Client client)
@@ -25,6 +25,11 @@ namespace Persistence
         public Client GetClient(string clientUsername)
         {
             return Clients.Find(client => client.Username.Equals(clientUsername));
+        }
+
+        public List<Client> GetFriendsOf(Client client)
+        {
+            return Clients.Find(c => c.Equals(client)).Friends;
         }
     }
 }

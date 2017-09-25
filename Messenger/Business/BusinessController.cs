@@ -1,5 +1,6 @@
 ﻿using Business.Exceptions;
 using System.Collections.Generic;
+using System;
 
 namespace Business
 {
@@ -62,6 +63,11 @@ namespace Business
                 formattedRequests[i] = new[] {requests[i].Id.ToString(), requests[i].Sender.Username};
             }
             return formattedRequests;
+        }
+
+        public List<Client> GetFriendsOf(Client client)
+        {
+            return Store.GetFriendsOf(client);
         }
 
         public FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId)

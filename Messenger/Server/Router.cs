@@ -25,6 +25,9 @@ namespace Server
                     case Command.ListOfConnectedUsers:
                         serverController.ListConnectedUsers(conn, request);
                         break;
+                    case Command.ListMyFriends:
+                        serverController.ListMyFriends(conn, request);
+                        break;
                     case Command.GetFriendshipRequests:
                         serverController.GetFriendshipRequests(conn, request);
                         break;
