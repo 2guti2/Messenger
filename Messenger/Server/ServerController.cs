@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Business;
 using Business.Exceptions;
 using Persistence;
@@ -40,6 +41,28 @@ namespace Server
             catch (RecordNotFoundException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void ListMyFriends(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Client> friends = businessController.GetFriendsOf(loggedUser);
+                var friendsUsernames = new List<string>();
+
+                friends.ForEach(c => friendsUsernames.Add(c.Username));
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, friendsUsernames.ToArray()));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
             }
             catch (ClientNotConnectedException e)
             {

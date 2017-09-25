@@ -7,6 +7,7 @@
         Login,
         GetFriendshipRequests,
         ConfirmFriendshipRequest,
-        DisconnectUser
+        DisconnectUser,
+        ListMyFriends
     }
 }

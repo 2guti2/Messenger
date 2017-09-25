@@ -12,52 +12,17 @@ namespace Client
     {
         static void Main(string[] args)
         {
+
             try
             {
                 var clientController = new ClientController();
-                clientController.Init();
-                while (true)
-                {
-                    int option = Menus.MainMenu(MenuOptions());
-                    MapOptionToAction(option, clientController);
-                }
+                clientController.LoopMenu();
             }
             catch (SocketException)
             {
                 Console.WriteLine("There was a problem connecting to the server, the app will exit");
+                Console.ReadKey();
                 Environment.Exit(1);
-            }
-        }
-
-        private static List<string> MenuOptions()
-        {
-            return new List<string>(
-                new[]
-                {
-                    "List Connected Users",
-                    "Send Friendship Request",
-                    "Accept Friendship Request",
-                    "Exit"
-                });
-        }
-
-        private static void MapOptionToAction(int option, ClientController clientController)
-        {
-            switch (option)
-            {
-                case 1:
-                    clientController.ListConnectedUsers();
-                    break;
-                case 2:
-                    clientController.SendFriendshipRequest();
-                    break;
-                case 3:
-                    clientController.AcceptFriendshipRequest();
-                    break;
-                default:
-                    clientController.DisconnectFromServer();
-                    Environment.Exit(0);
-                    break;
             }
         }
     }

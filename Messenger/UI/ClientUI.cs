@@ -1,4 +1,6 @@
-﻿namespace UI
+﻿using System;
+
+namespace UI
 {
     public class ClientUI
     {
@@ -7,9 +9,10 @@
             return Resources.Welcome;
         }
 
-        public static string Title()
+        public static string Title(string username = null)
         {
             string t = "";
+            if (username != null) t += "You are connected as : " + username + "\n";
             t += " __  __\n";
             t += "|  \\/  |\n";
             t += "| \\  / | ___  ___ ___  ___ _ __   __ _  ___ _ __ \n";
@@ -52,6 +55,11 @@
             return "Wrong username or password";
         }
 
+        public static string TheseAreTheConnectedUsers()
+        {
+            return "This are the connected users:";
+        }
+
         public static string LoginSuccessful()
         {
             return "Logged in successfully";
@@ -60,6 +68,12 @@
         public static string PromptUsername()
         {
             return "Enter a username";
+        }
+        public static void Clear()
+        {
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }

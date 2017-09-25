@@ -11,22 +11,34 @@ namespace Client
     {
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
+        private string clientUsername;
 
         public ClientController()
         {
             clientToken = "";
+            clientUsername = null;
             string serverIp = GetServerIpFromConfigFile();
             int serverPort = GetServerPortFromConfigFile();
             clientProtocol = new ClientProtocol(serverIp, serverPort);
         }
 
+        internal void LoopMenu()
+        {
+            Init();
+            while (true)
+            {
+                Console.WriteLine(ClientUI.Title(clientUsername));
+                int option = Menus.MainMenu(MenuOptions());
+                MapOptionToAction(option);
+                ClientUI.Clear();
+            }
+        }
+
         public void Init()
         {
             Console.WriteLine(ClientUI.Title());
-            Console.WriteLine(ClientUI.CallToAction());
-            Console.ReadKey();
-
             ConnectToServer();
+            ClientUI.Clear();
         }
 
         public void ListConnectedUsers()
@@ -46,7 +58,8 @@ namespace Client
         public void SendFriendshipRequest()
         {
             Connection connection = clientProtocol.ConnectToServer();
-
+            Console.WriteLine(ClientUI.TheseAreTheConnectedUsers());
+            ListConnectedUsers();
             Console.WriteLine(ClientUI.PromptUsername());
             string username = Input.RequestString();
             object[] request = BuildRequest(Command.FriendshipRequest, username);
@@ -60,6 +73,20 @@ namespace Client
             else
             {
                 Console.WriteLine(response.ErrorMessage());
+            }
+            connection.Close();
+        }
+
+        public void ListMyFriends()
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.ListMyFriends);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                PrintUsers(response.UserList());
             }
             connection.Close();
         }
@@ -125,6 +152,7 @@ namespace Client
                 if (connected)
                 {
                     clientToken = response.GetClientToken();
+                    clientUsername = client.Username;
                     Console.WriteLine(ClientUI.LoginSuccessful());
                 }
                 else
@@ -168,9 +196,49 @@ namespace Client
             return request.ToArray();
         }
 
-        public void PrintMenu()
+        public List<string> MenuOptions()
         {
-            Console.WriteLine("Menu goes here");
+            return new List<string>(
+                new[]
+                {
+                    "List Connected Users",
+                    "List My Friends",
+                    "Send Friendship Request",
+                    "Accept Friendship Request",
+                    "Chat",
+                    "Exit"
+                });
+        }
+
+        public void MapOptionToAction(int option)
+        {
+            switch (option)
+            {
+                case 1:
+                    ListConnectedUsers();
+                    break;
+                case 2:
+                    ListMyFriends();
+                    break;
+                case 3:
+                    SendFriendshipRequest();
+                    break;
+                case 4:
+                    AcceptFriendshipRequest();
+                    break;
+                case 5:
+                    Chat();
+                    break;
+                default:
+                    DisconnectFromServer();
+                    Environment.Exit(0);
+                    break;
+            }
+        }
+
+        private void Chat()
+        {
+            throw new NotImplementedException();
         }
     }
 }
