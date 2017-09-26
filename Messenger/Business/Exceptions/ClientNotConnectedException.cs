@@ -2,7 +2,7 @@
 
 namespace Business.Exceptions
 {
-    public class ClientNotConnectedException : Exception
+    public class ClientNotConnectedException : BusinessException
     {
         public ClientNotConnectedException() : base("Client not connected")
         {

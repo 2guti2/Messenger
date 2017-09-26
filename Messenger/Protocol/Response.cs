@@ -14,32 +14,20 @@ namespace Protocol
             responseObject = response;
         }
 
-        public string ResponseCode => responseObject[0][0][0];
+        public bool HadSuccess() => HasCode(Protocol.ResponseCode.Ok) || HasCode(Protocol.ResponseCode.Created);
 
-        public bool HadSuccess()
-        {
-            return HasCode(Protocol.ResponseCode.Ok);
-        }
+        public string GetClientToken() => responseObject[1][0][0];
 
-        public string GetClientToken()
-        {
-            return responseObject[1][0][0];
-        }
+        public string GetUsername() => responseObject[1][0][0];
 
-        public string GetUsername()
-        {
-            return responseObject[1][0][0];
-        }
+        public string ErrorMessage() => responseObject[1][0][0];
 
-        public string ErrorMessage()
-        {
-            return responseObject[1][0][0];
-        }
+        public string ServerMessage() => responseObject[1][0][0];
 
         public List<string> UserList()
         {
             var users = new List<string>();
-            for (int i = 1; i < responseObject.Length; i++)
+            for (var i = 1; i < responseObject.Length; i++)
                 users.Add(responseObject[i][0][0]);
             return users;
         }
@@ -56,6 +44,8 @@ namespace Protocol
 
             return receivedRequests;
         }
+
+        private string ResponseCode => responseObject[0][0][0];
 
         private bool HasCode(ResponseCode responseCode)
         {

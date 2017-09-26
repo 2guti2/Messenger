@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using Business.Exceptions;
 
 namespace Business
@@ -22,7 +24,7 @@ namespace Business
 
         public override bool Equals(object obj)
         {
-            Client toCompare = (Client) obj;
+            var toCompare = (Client) obj;
             return toCompare != null && Username.Equals(toCompare.Username);
         }
 
@@ -33,7 +35,19 @@ namespace Business
 
         public void AddFriendshipRequest(Client sender)
         {
-            FriendshipRequests.Add(new FriendshipRequest(sender, this));
+            if (HasFriend(sender) || sender.HasFriend(this)) throw new ClientAlreadyBefriendedException();
+            if (sender.Equals(this)) throw new CantBefriendSelfException();
+            if (HasSentFriendshitRequestFromClient(sender)) throw new RequestAlredySentException();
+
+            if (sender.HasSentFriendshitRequestFromClient(this))
+            {
+                FriendshipRequest existingRequest = sender.RequestFromClient(this);
+                sender.ConfirmRequest(existingRequest.Id.ToString());
+            }
+            else
+            {
+                FriendshipRequests.Add(new FriendshipRequest(sender, this));
+            }
         }
 
         public FriendshipRequest ConfirmRequest(string requestId)
@@ -42,16 +56,31 @@ namespace Business
             if (request == null)
                 throw new RecordNotFoundException("The request was not found");
             AddFriend(request.Sender);
-            request.Sender.AddFriend(this);
-            
             FriendshipRequests.Remove(request);
 
             return request;
         }
 
+        private FriendshipRequest RequestFromClient(Client client)
+        {
+            return FriendshipRequests.Find(request => request.Sender.Equals(client));
+        }
+
+        private bool HasSentFriendshitRequestFromClient(Client client)
+        {
+            return FriendshipRequests.Exists(request => request.Sender.Equals(client));
+        }
+
         private void AddFriend(Client client)
         {
+            if (HasFriend(client) || client.HasFriend(this)) throw new ClientAlreadyBefriendedException();
             Friends.Add(client);
+            client.Friends.Add(this);
+        }
+
+        public bool HasFriend(Client otherClient)
+        {
+            return Friends.Contains(otherClient);
         }
     }
 }

@@ -28,12 +28,14 @@ namespace Business
             return isValidPassword ? Server.ConnectClient(storedClient) : "";
         }
 
-        public void FriendshipRequest(Client sender, string receiverUsername)
+        public Client FriendshipRequest(Client sender, string receiverUsername)
         {
             Client receiver = Store.GetClient(receiverUsername);
             if (receiver == null)
                 throw new RecordNotFoundException("The client doesn't exist");
             receiver.AddFriendshipRequest(sender);
+
+            return receiver;
         }
 
         public Client GetLoggedClient(string userToken)

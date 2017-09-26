@@ -44,7 +44,9 @@ namespace Server
             }
             catch (Exception e)
             {
-                conn.SendMessage(new object[] {ResponseCode.InternalServerError, "There was a problem in the server"});
+                Console.WriteLine("Exception thrown: " + e.Message);
+                Console.WriteLine(e.StackTrace);
+                conn.SendMessage(new object[] {ResponseCode.InternalServerError.GetHashCode(), "There was a problem in the server"});
             }
             finally
             {

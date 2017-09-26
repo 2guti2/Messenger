@@ -68,7 +68,7 @@ namespace Client
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
-                Console.WriteLine("Success");
+                Console.WriteLine(response.ServerMessage());
             }
             else
             {
@@ -116,6 +116,20 @@ namespace Client
             }
         }
 
+        public List<string> MenuOptions()
+        {
+            return new List<string>(
+                new[]
+                {
+                    "List Connected Users",
+                    "List My Friends",
+                    "Send Friendship Request",
+                    "Accept Friendship Request",
+                    "Chat",
+                    "Exit"
+                });
+        }
+
         public void DisconnectFromServer()
         {
             Connection connection = clientProtocol.ConnectToServer();
@@ -134,7 +148,7 @@ namespace Client
 
         private void PrintUsers(List<string> users)
         {
-            users.ForEach(u => Console.WriteLine(u));
+            users.ForEach(Console.WriteLine);
         }
 
         private void ConnectToServer()
@@ -194,20 +208,6 @@ namespace Client
             request.Insert(0, new object[] {command.GetHashCode(), clientToken});
 
             return request.ToArray();
-        }
-
-        public List<string> MenuOptions()
-        {
-            return new List<string>(
-                new[]
-                {
-                    "List Connected Users",
-                    "List My Friends",
-                    "Send Friendship Request",
-                    "Accept Friendship Request",
-                    "Chat",
-                    "Exit"
-                });
         }
 
         public void MapOptionToAction(int option)

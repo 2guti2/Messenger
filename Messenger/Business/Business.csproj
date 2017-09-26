@@ -43,9 +43,13 @@
     <Compile Include="BusinessController.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Conversation.cs" />
+    <Compile Include="Exceptions\BusinessException.cs" />
+    <Compile Include="Exceptions\CantBefriendSelfException.cs" />
+    <Compile Include="Exceptions\ClientAlreadyBefriendedException.cs" />
     <Compile Include="Exceptions\ClientAlreadyConnectedException.cs" />
     <Compile Include="Exceptions\ClientNotConnectedException.cs" />
     <Compile Include="Exceptions\RecordNotFoundException.cs" />
+    <Compile Include="Exceptions\RequestAlredySentException.cs" />
     <Compile Include="FriendshipRequest.cs" />
     <Compile Include="IStore.cs" />
     <Compile Include="Message.cs" />
