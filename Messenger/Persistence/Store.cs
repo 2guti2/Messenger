@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Business;
 
 namespace Persistence
@@ -47,26 +48,19 @@ namespace Persistence
                 Read = false
             };
 
-            Clients.Remove(clientFrom);
-            Clients.Remove(clientTo);
-
             clientFrom.Messages.Add(message);
             clientTo.Messages.Add(message);
-
-            Clients.Add(clientFrom);
-            Clients.Add(clientTo);
         }
 
         public List<Message> UnreadMessages(Client of, string from)
         {
             var messages = new List<Message>();
 
-            Client clientOf = Clients.Find(c => c.Username.Equals(of));
+            Client clientOf = Clients.Find(c => c.Equals(of));
 
-            if(clientOf != null)
-            foreach(Message m in clientOf.Messages)
-                if (m.Sender.Equals(from) && !m.Read)
-                    messages.Add(m);
+            if (clientOf == null) return messages;
+            messages.AddRange(clientOf.Messages.Where(message => message.Sender.Equals(from) && !message.Read));
+            messages.ForEach(message => message.Read = true);
 
             return messages;
         }

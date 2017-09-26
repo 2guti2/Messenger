@@ -286,6 +286,7 @@ namespace Client
 
         private void ViewCurrentConversations()
         {
+            return;
             throw new NotImplementedException();
         }
 
@@ -313,44 +314,41 @@ namespace Client
             }
         }
 
-        private void StartChat(string counterpart)
+        private void StartChat(string counterpartUsername)
         {
             Console.WriteLine("talking");
             var talking = true;
-            string myAnswer = null;
+            var thread = new Thread(() => PrintWhatTheyWrite(counterpartUsername));
+            thread.Start();
             while (talking)
             {
-                var thread = new Thread(() => PrintWhatTheyWrite(counterpart));
-                thread.Start();
+                string myAnswer = Input.RequestString();
 
-                myAnswer = Console.ReadLine();
-
-                if (myAnswer != null)
-                {
-                    thread.Join();
-                    Connection connection3 = clientProtocol.ConnectToServer();
-                    connection3.SendMessage(BuildRequest(Command.SendMessage, counterpart, myAnswer));
-                    var sendMessageResponse = new Response(connection3.ReadMessage());
-                    connection3.Close();
-                    if (myAnswer.Equals("exit"))
-                        talking = false;
-                }
-
-                Thread.Sleep(5000);
+                Connection connection = clientProtocol.ConnectToServer();
+                connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
+                var sendMessageResponse = new Response(connection.ReadMessage());
+                if (!sendMessageResponse.HadSuccess())
+                    Console.WriteLine(sendMessageResponse.ErrorMessage());
+                connection.Close();
+                if (myAnswer.Equals("exit"))
+                    talking = false;
             }
         }
 
         private void PrintWhatTheyWrite(string counterpart)
         {
-            Connection connection = clientProtocol.ConnectToServer();
-            object[] readMessage = BuildRequest(Command.ReadMessage, counterpart);
-            connection.SendMessage(readMessage);
-
-            var readMessageResponse = new Response(connection.ReadMessage());
-
-            if (readMessageResponse.HadSuccess())
+            while (true)
             {
-                Console.WriteLine(counterpart + ": " + readMessageResponse.Message);
+                Connection connection = clientProtocol.ConnectToServer();
+                object[] readMessage = BuildRequest(Command.ReadMessage, counterpart);
+                connection.SendMessage(readMessage);
+
+                var readMessageResponse = new Response(connection.ReadMessage());
+
+                if (readMessageResponse.HadSuccess())
+                    Console.WriteLine(counterpart + ": " + readMessageResponse.Message);
+
+                Thread.Sleep(3000);
             }
         }
     }
