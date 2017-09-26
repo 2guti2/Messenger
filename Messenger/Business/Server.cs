@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace Business
@@ -21,14 +22,6 @@ namespace Business
             return token;
         }
 
-        private static string GenerateRandomToken(int length = 12)
-        {
-            var cryptRng = new RNGCryptoServiceProvider();
-            var tokenBuffer = new byte[length];
-            cryptRng.GetBytes(tokenBuffer);
-            return Convert.ToBase64String(tokenBuffer);
-        }
-
         public Client GetLoggedClient(string token)
         {
             return ConnectedClients[token];
@@ -44,16 +37,17 @@ namespace Business
             ConnectedClients.Remove(token);
         }
 
-        internal List<Client> GetLoggedClients()
+        public List<Client> GetLoggedClients()
         {
-            var clients = new List<Client>();
+            return ConnectedClients.Select(keyValuePair => keyValuePair.Value).ToList();
+        }
 
-            foreach(KeyValuePair<string, Client> keyValuePair in ConnectedClients)
-            {
-                clients.Add(keyValuePair.Value);
-            }
-
-            return clients;
+        private static string GenerateRandomToken(int length = 12)
+        {
+            var cryptRng = new RNGCryptoServiceProvider();
+            var tokenBuffer = new byte[length];
+            cryptRng.GetBytes(tokenBuffer);
+            return Convert.ToBase64String(tokenBuffer);
         }
     }
 }

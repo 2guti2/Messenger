@@ -35,16 +35,19 @@ namespace Server
             {
                 string username = req.Username();
                 Client loggedUser = CurrentClient(req);
-                businessController.FriendshipRequest(loggedUser, username);
-                conn.SendMessage(BuildResponse(ResponseCode.Ok, "Friendship request sent"));
-            }
-            catch (RecordNotFoundException e)
-            {
-                conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+                Client receiver = businessController.FriendshipRequest(loggedUser, username);
+                if (receiver.HasFriend(loggedUser))
+                    conn.SendMessage(BuildResponse(ResponseCode.Ok, "Friend added"));
+                else
+                    conn.SendMessage(BuildResponse(ResponseCode.Created, "Friendship request sent"));
             }
             catch (ClientNotConnectedException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+            catch (BusinessException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
             }
         }
 
@@ -103,12 +106,10 @@ namespace Server
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
-        }
-
-        public void InvalidCommand(Connection conn)
-        {
-            object[] response = BuildResponse(ResponseCode.BadRequest, "Unrecognizable command");
-            conn.SendMessage(response);
+            catch (BusinessException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
         }
 
         public void ListConnectedUsers(Connection conn, Request request)
@@ -136,6 +137,12 @@ namespace Server
         public void DisconnectUser(Connection conn, Request request)
         {
             businessController.DisconnectClient(request.UserToken());
+        }
+
+        public void InvalidCommand(Connection conn)
+        {
+            object[] response = BuildResponse(ResponseCode.BadRequest, "Unrecognizable command");
+            conn.SendMessage(response);
         }
 
         private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
