@@ -16,6 +16,8 @@ namespace Protocol
 
         public string ResponseCode => responseObject[0][0][0];
 
+        public string Message => responseObject[1][0][0];
+
         public bool HadSuccess()
         {
             return HasCode(Protocol.ResponseCode.Ok);
@@ -42,6 +44,14 @@ namespace Protocol
             for (int i = 1; i < responseObject.Length; i++)
                 users.Add(responseObject[i][0][0]);
             return users;
+        }
+
+        public List<int> Notifications()
+        {
+            var notifications = new List<int>();
+            for (int i = 1; i < responseObject.Length; i++)
+                notifications.Add(int.Parse(responseObject[i][0][0]));
+            return notifications;
         }
 
         public string[][] FriendshipRequests()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace UI
 {
@@ -9,10 +10,12 @@ namespace UI
             return Resources.Welcome;
         }
 
-        public static string Title(string username = null)
+        public static string Title(List<int> notifications = null, string username = null)
         {
             string t = "";
             if (username != null) t += "You are connected as : " + username + "\n";
+            if (notifications != null)
+                t += "You have " + notifications[0] + " friendship requests pending.\n";
             t += " __  __\n";
             t += "|  \\/  |\n";
             t += "| \\  / | ___  ___ ___  ___ _ __   __ _  ___ _ __ \n";

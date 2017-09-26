@@ -65,6 +65,22 @@ namespace Business
             return formattedRequests;
         }
 
+        public List<Message> UnreadMessages(Client of, string from)
+        {
+            return Store.UnreadMessages(of, from);
+        }
+
+        public List<string> GetNotificationsOf(Client loggedUser)
+        {
+            var notifications = new List<string>();
+            Client storedClient = Store.GetClient(loggedUser.Username);
+
+            string friendshipRequests = storedClient.FriendshipRequests.Count.ToString();
+
+            notifications.Add(friendshipRequests);
+            return notifications;
+        }
+
         public List<Client> GetFriendsOf(Client client)
         {
             return Store.GetFriendsOf(client);
@@ -73,6 +89,11 @@ namespace Business
         public FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId)
         {
             return currentClient.ConfirmRequest(requestId);
+        }
+
+        public void SendMessage(string usernameFrom, string usernameTo, string message)
+        {
+            Store.SendMessage(usernameFrom, usernameTo, message);
         }
     }
 }

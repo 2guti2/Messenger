@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="BusinessController.cs" />
     <Compile Include="Client.cs" />
-    <Compile Include="Conversation.cs" />
     <Compile Include="Exceptions\ClientAlreadyConnectedException.cs" />
     <Compile Include="Exceptions\ClientNotConnectedException.cs" />
     <Compile Include="Exceptions\RecordNotFoundException.cs" />

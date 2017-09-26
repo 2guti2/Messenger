@@ -4,6 +4,7 @@ using Protocol;
 using UI;
 using System.Configuration;
 using Business;
+using System.Threading;
 
 namespace Client
 {
@@ -27,9 +28,9 @@ namespace Client
             Init();
             while (true)
             {
-                Console.WriteLine(ClientUI.Title(clientUsername));
-                int option = Menus.MainMenu(MenuOptions());
-                MapOptionToAction(option);
+                Console.WriteLine(ClientUI.Title(GetNotifications(), clientUsername));
+                int option = Menus.MapInputWithMenuItemsList(MenuOptions());
+                MapOptionToActionOfMainMenu(option);
                 ClientUI.Clear();
             }
         }
@@ -79,6 +80,12 @@ namespace Client
 
         public void ListMyFriends()
         {
+            PrintUsers(FriendsList());
+        }
+
+        public List<string> FriendsList()
+        {
+            var friends = new List<string>();
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListMyFriends);
             connection.SendMessage(request);
@@ -86,9 +93,10 @@ namespace Client
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
-                PrintUsers(response.UserList());
+                friends = response.UserList();
             }
             connection.Close();
+            return friends;
         }
 
         public void AcceptFriendshipRequest()
@@ -210,7 +218,7 @@ namespace Client
                 });
         }
 
-        public void MapOptionToAction(int option)
+        public void MapOptionToActionOfMainMenu(int option)
         {
             switch (option)
             {
@@ -236,9 +244,114 @@ namespace Client
             }
         }
 
+        private List<int> GetNotifications()
+        {
+            var notifications = new List<int>();
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.Notifications);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                notifications = response.Notifications();
+            }
+            connection.Close();
+            return notifications;
+        }
+
         private void Chat()
         {
+            List<string> chatOptions = new List<string>(
+                new[]
+                {
+                    "Start new conversation",
+                    "View my current conversations"
+                });
+
+            int chatOptionsInput = Menus.MapInputWithMenuItemsList(chatOptions);
+
+            switch (chatOptionsInput)
+            {
+                case 1:
+                    StartNewConversation();
+                    break;
+                case 2:
+                    ViewCurrentConversations();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void ViewCurrentConversations()
+        {
             throw new NotImplementedException();
+        }
+
+        private void StartNewConversation()
+        {
+            Console.WriteLine("Select a friend to send a message to:");
+            List<string> friends = FriendsList();
+
+            int input = Menus.MapInputWithMenuItemsList(friends);
+            input--;
+
+            Console.WriteLine("Type the content of your message:");
+            string message = Console.ReadLine();
+
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.SendMessage, friends[input], message);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            connection.Close();
+
+            if (response.HadSuccess())
+            {
+                StartChat(friends[input]);
+            }
+        }
+
+        private void StartChat(string counterpart)
+        {
+            Console.WriteLine("talking");
+            var talking = true;
+            string myAnswer = null;
+            while (talking)
+            {
+                var thread = new Thread(() => PrintWhatTheyWrite(counterpart));
+                thread.Start();
+
+                myAnswer = Console.ReadLine();
+
+                if (myAnswer != null)
+                {
+                    thread.Join();
+                    Connection connection3 = clientProtocol.ConnectToServer();
+                    connection3.SendMessage(BuildRequest(Command.SendMessage, counterpart, myAnswer));
+                    var sendMessageResponse = new Response(connection3.ReadMessage());
+                    connection3.Close();
+                    if (myAnswer.Equals("exit"))
+                        talking = false;
+                }
+
+                Thread.Sleep(5000);
+            }
+        }
+
+        private void PrintWhatTheyWrite(string counterpart)
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] readMessage = BuildRequest(Command.ReadMessage, counterpart);
+            connection.SendMessage(readMessage);
+
+            var readMessageResponse = new Response(connection.ReadMessage());
+
+            if (readMessageResponse.HadSuccess())
+            {
+                Console.WriteLine(counterpart + ": " + readMessageResponse.Message);
+            }
         }
     }
 }

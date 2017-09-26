@@ -34,6 +34,15 @@ namespace Server
                     case Command.ConfirmFriendshipRequest:
                         serverController.ConfirmFriendshipRequest(conn, request);
                         break;
+                    case Command.Notifications:
+                        serverController.ListNotifications(conn, request);
+                        break;
+                    case Command.SendMessage:
+                        serverController.SendMessage(conn, request);
+                        break;
+                    case Command.ReadMessage:
+                        serverController.ReadMessage(conn, request);
+                        break;
                     case Command.DisconnectUser:
                         serverController.DisconnectUser(conn, request);
                         break;
@@ -44,7 +53,7 @@ namespace Server
             }
             catch (Exception e)
             {
-                conn.SendMessage(new object[] {ResponseCode.InternalServerError, "There was a problem in the server"});
+                conn.SendMessage(new object[] {ResponseCode.InternalServerError, "There was a problem in the server: " + e.Message});
             }
             finally
             {

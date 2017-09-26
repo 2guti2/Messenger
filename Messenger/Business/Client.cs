@@ -11,14 +11,14 @@ namespace Business
             Password = password;
             Friends = new List<Client>();
             FriendshipRequests = new List<FriendshipRequest>();
-            Conversations = new List<Conversation>();
+            Messages = new List<Message>();
         }
 
         public string Username { get; set; }
         public string Password { get; set; }
         public List<Client> Friends { get; set; }
         public List<FriendshipRequest> FriendshipRequests { get; set; }
-        public List<Conversation> Conversations { get; set; }
+        public List<Message> Messages { get; set; }
 
         public override bool Equals(object obj)
         {

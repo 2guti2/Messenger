@@ -4,6 +4,7 @@ using Business;
 using Business.Exceptions;
 using Persistence;
 using Protocol;
+using System.Threading;
 
 namespace Server
 {
@@ -41,6 +42,52 @@ namespace Server
             catch (RecordNotFoundException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void ReadMessage(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                Console.WriteLine("Recipient: " + request.Recipient());
+                List<Message> unreadMessages = businessController.UnreadMessages(loggedUser, request.Recipient());
+                Console.WriteLine("unread messages loaded");
+                var unreadMessagesString = new List<string>();
+
+                unreadMessages.ForEach(um => unreadMessagesString.Add(um.Content));
+                Console.WriteLine(unreadMessagesString.Count);
+                if (unreadMessagesString.Count > 0)
+                    conn.SendMessage(BuildResponse(ResponseCode.Ok, unreadMessagesString.ToArray()));
+                else
+                    conn.SendMessage(BuildResponse(ResponseCode.NotFound));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void ListNotifications(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<string> notifications = businessController.GetNotificationsOf(loggedUser);
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, notifications.ToArray()));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
             }
             catch (ClientNotConnectedException e)
             {
@@ -149,6 +196,34 @@ namespace Server
         private Client CurrentClient(Request req)
         {
             return businessController.GetLoggedClient(req.UserToken());
+        }
+
+        public void SendMessage(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                string usernameFrom = loggedUser.Username;
+                string usernameTo = request.Recipient();
+
+                Console.WriteLine("from: " + usernameFrom);
+                Console.WriteLine("to: " + usernameTo);
+
+                string message = request.Message;
+
+                businessController.SendMessage(usernameFrom, usernameTo, message);
+                Console.WriteLine("Message sent :" + message);
+                Console.WriteLine("-----------------");
+                conn.SendMessage(BuildResponse(ResponseCode.Ok));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
         }
     }
 }

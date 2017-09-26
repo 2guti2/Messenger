@@ -8,6 +8,9 @@
         GetFriendshipRequests,
         ConfirmFriendshipRequest,
         DisconnectUser,
-        ListMyFriends
+        ListMyFriends,
+        Notifications,
+        SendMessage,
+        ReadMessage
     }
 }

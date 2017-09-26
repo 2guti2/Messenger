@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using UI;
 
@@ -10,12 +11,14 @@ namespace Client
 {
     class Program
     {
+        private static ClientController clientController = new ClientController(); 
+
         static void Main(string[] args)
         {
-
             try
             {
-                var clientController = new ClientController();
+                handler = new ConsoleEventDelegate(ConsoleEventCallback);
+                SetConsoleCtrlHandler(handler, true);
                 clientController.LoopMenu();
             }
             catch (SocketException)
@@ -25,5 +28,25 @@ namespace Client
                 Environment.Exit(1);
             }
         }
+
+        static bool ConsoleEventCallback(int eventType)
+        {
+            if (IsConsoleClosing(eventType))
+            {
+                Console.WriteLine("Console window closing, disconnecting client");
+                clientController.DisconnectFromServer();
+            }
+            return false;
+        }
+
+        private static bool IsConsoleClosing(int eventType)
+        {
+            return eventType == 2;
+        }
+
+        static ConsoleEventDelegate handler;  
+        private delegate bool ConsoleEventDelegate(int eventType);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
     }
 }
