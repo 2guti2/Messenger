@@ -1,59 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace Business
 {
     internal class Server
     {
-        private Dictionary<string, Client> ConnectedClients { get; set; }
+        public List<Session> ConnectedClients { get; set; }
 
         public Server()
         {
-            ConnectedClients = new Dictionary<string, Client>();
+            ConnectedClients = new List<Session>();
         }
 
         public string ConnectClient(Client client)
         {
-            string token = GenerateRandomToken();
-            ConnectedClients.Add(token, client);
+            var session = new Session(client);
+            ConnectedClients.Add(session);
+            client.AddSession(session);
 
-            return token;
-        }
-
-        private static string GenerateRandomToken(int length = 12)
-        {
-            var cryptRng = new RNGCryptoServiceProvider();
-            var tokenBuffer = new byte[length];
-            cryptRng.GetBytes(tokenBuffer);
-            return Convert.ToBase64String(tokenBuffer);
+            return session.Id;
         }
 
         public Client GetLoggedClient(string token)
         {
-            return ConnectedClients[token];
+            return ConnectedClients.Find(session => session.Id.Equals(token)).Client;
         }
 
         public bool IsClientConnected(Client client)
         {
-            return ConnectedClients.ContainsValue(client);
+            return ConnectedClients.Exists(session => session.Client.Equals(client));
         }
 
         public void DisconnectClient(string token)
         {
-            ConnectedClients.Remove(token);
+            ConnectedClients.FindAll(session => session.Id.Equals(token)).ForEach(sesssion => sesssion.Deactivate());
+            ConnectedClients.RemoveAll(session => session.Id.Equals(token));
         }
 
-        internal List<Client> GetLoggedClients()
+        public List<Client> GetLoggedClients()
         {
-            var clients = new List<Client>();
-
-            foreach(KeyValuePair<string, Client> keyValuePair in ConnectedClients)
-            {
-                clients.Add(keyValuePair.Value);
-            }
-
-            return clients;
+            return ConnectedClients.Select(session => session.Client).ToList();
         }
     }
 }

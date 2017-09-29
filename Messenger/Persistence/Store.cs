@@ -8,7 +8,7 @@ namespace Persistence
 {
     public class Store : IStore
     {
-        public List<Client> Clients { get; set; }
+        private List<Client> Clients { get; set; }
 
         public Store()
         {
@@ -34,6 +34,7 @@ namespace Persistence
         {
             return Clients.Find(c => c.Equals(client)).Friends;
         }
+
 
         public void SendMessage(string usernameFrom, string usernameTo, string messageContent)
         {
@@ -81,6 +82,11 @@ namespace Persistence
             messages.ForEach(m => m.Read = true);
 
             return messages;
+        }
+
+        public List<Client> GetClients()
+        {
+            return Clients;
         }
     }
 }

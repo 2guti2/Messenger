@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using Business.Exceptions;
 
 namespace Business
@@ -12,6 +14,7 @@ namespace Business
             Friends = new List<Client>();
             FriendshipRequests = new List<FriendshipRequest>();
             Messages = new List<Message>();
+            Sessions = new List<Session>();
         }
 
         public string Username { get; set; }
@@ -19,10 +22,14 @@ namespace Business
         public List<Client> Friends { get; set; }
         public List<FriendshipRequest> FriendshipRequests { get; set; }
         public List<Message> Messages { get; set; }
+        public int FriendsCount => Friends.Count;
+        public DateTime? ConnectedSince => Sessions.Find(session => session.Active)?.ConnectedSince;
+        public int ConnectionsCount => Sessions.Count;
+        private List<Session> Sessions { get; }
 
         public override bool Equals(object obj)
         {
-            Client toCompare = (Client) obj;
+            var toCompare = (Client) obj;
             return toCompare != null && Username.Equals(toCompare.Username);
         }
 
@@ -33,7 +40,24 @@ namespace Business
 
         public void AddFriendshipRequest(Client sender)
         {
-            FriendshipRequests.Add(new FriendshipRequest(sender, this));
+            if (HasFriend(sender) || sender.HasFriend(this)) throw new ClientAlreadyBefriendedException();
+            if (sender.Equals(this)) throw new CantBefriendSelfException();
+            if (HasSentFriendshitRequestFromClient(sender)) throw new RequestAlredySentException();
+
+            if (sender.HasSentFriendshitRequestFromClient(this))
+            {
+                FriendshipRequest existingRequest = sender.RequestFromClient(this);
+                sender.ConfirmRequest(existingRequest.Id.ToString());
+            }
+            else
+            {
+                FriendshipRequests.Add(new FriendshipRequest(sender, this));
+            }
+        }
+
+        public void AddSession(Session session)
+        {
+            Sessions.Add(session);
         }
 
         public FriendshipRequest ConfirmRequest(string requestId)
@@ -43,15 +67,41 @@ namespace Business
                 throw new RecordNotFoundException("The request was not found");
             AddFriend(request.Sender);
             request.Sender.AddFriend(this);
-            
+
             FriendshipRequests.Remove(request);
 
             return request;
         }
 
+        public void RejectRequest(string requestId)
+        {
+            FriendshipRequest request = FriendshipRequests.Find(r => r.Id.ToString().Equals(requestId));
+            if (request == null)
+                throw new RecordNotFoundException("The request was not found");
+
+            FriendshipRequests.Remove(request);
+        }
+
+        private FriendshipRequest RequestFromClient(Client client)
+        {
+            return FriendshipRequests.Find(request => request.Sender.Equals(client));
+        }
+
+        private bool HasSentFriendshitRequestFromClient(Client client)
+        {
+            return FriendshipRequests.Exists(request => request.Sender.Equals(client));
+        }
+
         private void AddFriend(Client client)
         {
+            if (HasFriend(client) || client.HasFriend(this)) throw new ClientAlreadyBefriendedException();
             Friends.Add(client);
+            client.Friends.Add(this);
+        }
+
+        public bool HasFriend(Client otherClient)
+        {
+            return Friends.Contains(otherClient);
         }
     }
 }

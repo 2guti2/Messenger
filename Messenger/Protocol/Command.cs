@@ -7,6 +7,7 @@
         Login,
         GetFriendshipRequests,
         ConfirmFriendshipRequest,
+        RejectFriendshipRequest,
         DisconnectUser,
         ListMyFriends,
         Notifications,

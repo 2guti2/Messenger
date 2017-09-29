@@ -5,14 +5,10 @@ namespace UI
 {
     public class ClientUI
     {
-        public static string WelcomeMessage()
-        {
-            return Resources.Welcome;
-        }
 
         public static string Title(List<int> notifications = null, string username = null)
         {
-            string t = "";
+            var t = "";
             if (username != null) t += "You are connected as : " + username + "\n";
             if (notifications != null)
                 t += "You have " + notifications[0] + " friendship requests pending.\n";

@@ -29,12 +29,14 @@ namespace Business
             return isValidPassword ? Server.ConnectClient(storedClient) : "";
         }
 
-        public void FriendshipRequest(Client sender, string receiverUsername)
+        public Client FriendshipRequest(Client sender, string receiverUsername)
         {
             Client receiver = Store.GetClient(receiverUsername);
             if (receiver == null)
                 throw new RecordNotFoundException("The client doesn't exist");
             receiver.AddFriendshipRequest(sender);
+
+            return receiver;
         }
 
         public Client GetLoggedClient(string userToken)
@@ -58,8 +60,8 @@ namespace Business
         public string[][] GetFriendshipRequests(Client currentClient)
         {
             List<FriendshipRequest> requests = currentClient.FriendshipRequests;
-            string[][] formattedRequests = new string[requests.Count][];
-            for (int i = 0; i < requests.Count; i++)
+            var formattedRequests = new string[requests.Count][];
+            for (var i = 0; i < requests.Count; i++)
             {
                 formattedRequests[i] = new[] {requests[i].Id.ToString(), requests[i].Sender.Username};
             }
@@ -109,6 +111,16 @@ namespace Business
             {
                 return Store.AllMessages(loggedUser, recipient);
             }
+        }
+
+        public void RejectFriendshipRequest(Client currentClient, string requestId)
+        {
+            currentClient.RejectRequest(requestId);
+        }
+        
+        public List<Client> GetClients()
+        {
+            return  Store.GetClients();
         }
     }
 }

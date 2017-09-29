@@ -2,7 +2,7 @@
 
 namespace Business.Exceptions
 {
-    public class RecordNotFoundException : Exception
+    public class RecordNotFoundException : BusinessException
     {
         public RecordNotFoundException(string message) : base(message)
         {

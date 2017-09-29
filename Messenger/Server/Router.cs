@@ -3,11 +3,16 @@ using Protocol;
 
 namespace Server
 {
-    public static class Router
+    public class Router
     {
-        private static readonly ServerController serverController = new ServerController();
+        private readonly ServerController serverController;
 
-        public static void Handle(Connection conn)
+        public Router(ServerController serverController)
+        {
+            this.serverController = serverController;
+        }
+
+        public void Handle(Connection conn)
         {
             try
             {
@@ -34,6 +39,9 @@ namespace Server
                     case Command.ConfirmFriendshipRequest:
                         serverController.ConfirmFriendshipRequest(conn, request);
                         break;
+                    case Command.RejectFriendshipRequest:
+                        serverController.RejectFriendshipRequest(conn, request);
+                        break;
                     case Command.Notifications:
                         serverController.ListNotifications(conn, request);
                         break;
@@ -56,7 +64,9 @@ namespace Server
             }
             catch (Exception e)
             {
-                conn.SendMessage(new object[] {ResponseCode.InternalServerError, "There was a problem in the server: " + e.Message});
+                Console.WriteLine("Exception thrown: " + e.Message);
+                Console.WriteLine(e.StackTrace);
+                conn.SendMessage(new object[] {ResponseCode.InternalServerError.GetHashCode(), "There was a problem in the server"});
             }
             finally
             {

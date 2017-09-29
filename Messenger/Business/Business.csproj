@@ -42,14 +42,19 @@
   <ItemGroup>
     <Compile Include="BusinessController.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="Exceptions\BusinessException.cs" />
+    <Compile Include="Exceptions\CantBefriendSelfException.cs" />
+    <Compile Include="Exceptions\ClientAlreadyBefriendedException.cs" />
     <Compile Include="Exceptions\ClientAlreadyConnectedException.cs" />
     <Compile Include="Exceptions\ClientNotConnectedException.cs" />
     <Compile Include="Exceptions\RecordNotFoundException.cs" />
+    <Compile Include="Exceptions\RequestAlredySentException.cs" />
     <Compile Include="FriendshipRequest.cs" />
     <Compile Include="IStore.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
+    <Compile Include="Session.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
