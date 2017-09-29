@@ -351,7 +351,7 @@ namespace Client
                 var readMessageResponse = new Response(connection.ReadMessage());
 
                 if (readMessageResponse.HadSuccess())
-                    readMessageResponse.Messages().ForEach(m => Console.WriteLine(counterpart + ": " + readMessageResponse.Message));
+                    readMessageResponse.Messages().ForEach(m => Console.WriteLine(counterpart + ": " + m));
 
                 Thread.Sleep(500);
             }
