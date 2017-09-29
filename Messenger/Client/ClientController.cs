@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Protocol;
 using UI;
 using System.Configuration;
+using Business;
+using System.Threading;
+
 
 namespace Client
 {
@@ -26,9 +29,9 @@ namespace Client
             Init();
             while (true)
             {
-                Console.WriteLine(ClientUI.Title(clientUsername));
-                int option = Menus.MainMenu(MenuOptions());
-                MapOptionToAction(option);
+                Console.WriteLine(ClientUI.Title(GetNotifications(), clientUsername));
+                int option = Menus.MapInputWithMenuItemsList(MenuOptions());
+                MapOptionToActionOfMainMenu(option);
                 ClientUI.Clear();
             }
         }
@@ -78,6 +81,12 @@ namespace Client
 
         private void ListMyFriends()
         {
+            PrintUsers(FriendsList());
+        }
+
+        public List<string> FriendsList()
+        {
+            var friends = new List<string>();
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListMyFriends);
             connection.SendMessage(request);
@@ -85,9 +94,10 @@ namespace Client
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
-                PrintUsers(response.UserList());
+                friends = response.UserList();
             }
             connection.Close();
+            return friends;
         }
 
         private void RespondToFriendshipRequest()
@@ -231,7 +241,7 @@ namespace Client
             return request.ToArray();
         }
 
-        public void MapOptionToAction(int option)
+        public void MapOptionToActionOfMainMenu(int option)
         {
             switch (option)
             {
@@ -257,9 +267,105 @@ namespace Client
             }
         }
 
+        private List<int> GetNotifications()
+        {
+            var notifications = new List<int>();
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.Notifications);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                notifications = response.Notifications();
+            }
+            connection.Close();
+            return notifications;
+        }
+
         private void Chat()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Select a friend to send a message to:");
+            List<string> friends = FriendsList();
+
+            int input = Menus.MapInputWithMenuItemsList(friends);
+            input--;
+
+            PrintConversations(friends[input]);
+
+            Console.WriteLine("Type the content of your message:");
+            string message = Console.ReadLine();
+
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.SendMessage, friends[input], message);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            connection.Close();
+
+            if (response.HadSuccess())
+            {
+                StartChat(friends[input]);
+            }
+        }
+
+        private void PrintConversations(string friend)
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.GetConversation, friend);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            connection.Close();
+
+            if (response.HadSuccess())
+            {
+                response.Conversation(clientUsername).ForEach(Console.WriteLine);
+            }
+        }
+
+        private void StartChat(string counterpartUsername)
+        {
+            var thread = new Thread(() => PrintWhatTheyWrite(counterpartUsername));
+            thread.Start();
+            while (true)
+            {
+                string myAnswer = Input.RequestString();
+
+                if (myAnswer.Equals("exit"))
+                    break;
+
+                var messageSendingThread = new Thread(() => SendMessage(counterpartUsername, myAnswer));
+                messageSendingThread.Start();
+            }
+            thread.Abort();
+        }
+
+        private void SendMessage(string counterpartUsername, string myAnswer)
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
+            var sendMessageResponse = new Response(connection.ReadMessage());
+            if (!sendMessageResponse.HadSuccess())
+                Console.WriteLine(sendMessageResponse.ErrorMessage());
+            connection.Close();
+        }
+
+        private void PrintWhatTheyWrite(string counterpart)
+        {
+            while (true)
+            {
+                Connection connection = clientProtocol.ConnectToServer();
+                object[] readMessage = BuildRequest(Command.ReadMessage, counterpart);
+                connection.SendMessage(readMessage);
+
+                var readMessageResponse = new Response(connection.ReadMessage());
+
+                if (readMessageResponse.HadSuccess())
+                    readMessageResponse.Messages().ForEach(m => Console.WriteLine(counterpart + ": " + m));
+
+                Thread.Sleep(500);
+            }
         }
     }
 }

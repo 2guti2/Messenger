@@ -9,6 +9,10 @@
         ConfirmFriendshipRequest,
         RejectFriendshipRequest,
         DisconnectUser,
-        ListMyFriends
+        ListMyFriends,
+        Notifications,
+        SendMessage,
+        ReadMessage,
+        GetConversation
     }
 }

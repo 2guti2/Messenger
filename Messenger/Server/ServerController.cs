@@ -2,6 +2,7 @@
 using Business;
 using Business.Exceptions;
 using Protocol;
+using System.Threading;
 
 namespace Server
 {
@@ -51,6 +52,49 @@ namespace Server
             catch (BusinessException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
+        }
+
+        public void ReadMessage(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Message> unreadMessages = businessController.UnreadMessages(loggedUser, request.Recipient());
+                var unreadMessagesString = new List<string>();
+
+                unreadMessages.ForEach(um => unreadMessagesString.Add(um.Content));
+                if (unreadMessagesString.Count > 0)
+                    conn.SendMessage(BuildResponse(ResponseCode.Ok, unreadMessagesString.ToArray()));
+                else
+                    conn.SendMessage(BuildResponse(ResponseCode.NotFound));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void ListNotifications(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<string> notifications = businessController.GetNotificationsOf(loggedUser);
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, notifications.ToArray()));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
         }
 
@@ -174,6 +218,55 @@ namespace Server
         private Client CurrentClient(Request req)
         {
             return businessController.GetLoggedClient(req.UserToken());
+        }
+
+        public void SendMessage(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                string usernameFrom = loggedUser.Username;
+                string usernameTo = request.Recipient();
+
+                string message = request.Message;
+
+                businessController.SendMessage(usernameFrom, usernameTo, message);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void GetConversation(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Message> allMessages = businessController.AllMessages(loggedUser, request.Recipient());
+
+                var messagesString = new List<string[]>();
+
+                allMessages.ForEach(ms => messagesString.Add(new[] { ms.Sender, ms.Content }));
+
+                if (messagesString.Count > 0)
+                    conn.SendMessage(BuildResponse(ResponseCode.Ok, messagesString.ToArray()));
+                else
+                    conn.SendMessage(BuildResponse(ResponseCode.NotFound));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
         }
     }
 }

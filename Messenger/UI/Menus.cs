@@ -17,7 +17,7 @@ namespace UI
             return requests[option - 1][0];
         }
 
-        public static int MainMenu(List<string> options)
+        public static int MapInputWithMenuItemsList(List<string> options)
         {
             for (var i = 0; i < options.Count; i++)
             {

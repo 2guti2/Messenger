@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="BusinessController.cs" />
     <Compile Include="Client.cs" />
-    <Compile Include="Conversation.cs" />
     <Compile Include="Exceptions\BusinessException.cs" />
     <Compile Include="Exceptions\CantBefriendSelfException.cs" />
     <Compile Include="Exceptions\ClientAlreadyBefriendedException.cs" />
