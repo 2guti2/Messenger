@@ -3,11 +3,16 @@ using Protocol;
 
 namespace Server
 {
-    public static class Router
+    public class Router
     {
-        private static readonly ServerController serverController = new ServerController();
+        private readonly ServerController serverController;
 
-        public static void Handle(Connection conn)
+        public Router(ServerController serverController)
+        {
+            this.serverController = serverController;
+        }
+
+        public void Handle(Connection conn)
         {
             try
             {

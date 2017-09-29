@@ -5,7 +5,7 @@ namespace Persistence
 {
     public class Store : IStore
     {
-        public List<Client> Clients { get; set; }
+        private List<Client> Clients { get; set; }
 
         public Store()
         {
@@ -30,6 +30,11 @@ namespace Persistence
         public List<Client> GetFriendsOf(Client client)
         {
             return Clients.Find(c => c.Equals(client)).Friends;
+        }
+
+        public List<Client> GetClients()
+        {
+            return Clients;
         }
     }
 }

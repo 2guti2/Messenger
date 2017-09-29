@@ -76,5 +76,15 @@ namespace Business
         {
             return currentClient.ConfirmRequest(requestId);
         }
+
+        public List<Session> GetActiveSessions()
+        {
+            return  Server.ConnectedClients;
+        }
+        
+        public List<Client> GetClients()
+        {
+            return  Store.GetClients();
+        }
     }
 }

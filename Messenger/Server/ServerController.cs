@@ -9,7 +9,12 @@ namespace Server
 {
     public class ServerController
     {
-        private readonly BusinessController businessController = new BusinessController(new Store());
+        private readonly BusinessController businessController;
+
+        public ServerController(BusinessController businessController)
+        {
+            this.businessController = businessController;
+        }
 
         public void ConnectClient(Connection conn, Request req)
         {
