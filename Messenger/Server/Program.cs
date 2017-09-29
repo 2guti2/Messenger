@@ -37,7 +37,7 @@ namespace Server
             });
             while (true)
             {
-                int option = Menus.MainMenu(options);
+                int option = Menus.MapInputWithMenuItemsList(options);
 
                 MapOptionToAction(option, businessController);
 
