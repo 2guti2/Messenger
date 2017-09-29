@@ -11,6 +11,7 @@
         ListMyFriends,
         Notifications,
         SendMessage,
-        ReadMessage
+        ReadMessage,
+        GetConversation
     }
 }

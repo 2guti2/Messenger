@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Business;
 
 namespace Persistence
@@ -61,6 +62,23 @@ namespace Persistence
             if (clientOf == null) return messages;
             messages.AddRange(clientOf.Messages.Where(message => message.Sender.Equals(from) && !message.Read));
             messages.ForEach(message => message.Read = true);
+
+            return messages;
+        }
+
+        public List<Message> AllMessages(Client of, string from)
+        {
+            var messages = new List<Message>();
+
+            Client clientOf = Clients.Find(c => c.Equals(of));
+
+            if (clientOf == null) return messages;
+
+            messages.AddRange
+            (
+                clientOf.Messages.Where(message => ((message.Receiver.Equals(from) || message.Sender.Equals(from))))
+            );
+            messages.ForEach(m => m.Read = true);
 
             return messages;
         }

@@ -54,13 +54,10 @@ namespace Server
             try
             {
                 Client loggedUser = CurrentClient(request);
-                Console.WriteLine("Recipient: " + request.Recipient());
                 List<Message> unreadMessages = businessController.UnreadMessages(loggedUser, request.Recipient());
-                Console.WriteLine("unread messages loaded");
                 var unreadMessagesString = new List<string>();
 
                 unreadMessages.ForEach(um => unreadMessagesString.Add(um.Content));
-                Console.WriteLine(unreadMessagesString.Count);
                 if (unreadMessagesString.Count > 0)
                     conn.SendMessage(BuildResponse(ResponseCode.Ok, unreadMessagesString.ToArray()));
                 else
@@ -206,15 +203,36 @@ namespace Server
                 string usernameFrom = loggedUser.Username;
                 string usernameTo = request.Recipient();
 
-                Console.WriteLine("from: " + usernameFrom);
-                Console.WriteLine("to: " + usernameTo);
-
                 string message = request.Message;
 
                 businessController.SendMessage(usernameFrom, usernameTo, message);
-                Console.WriteLine("Message sent :" + message);
-                Console.WriteLine("-----------------");
                 conn.SendMessage(BuildResponse(ResponseCode.Ok));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void GetConversation(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Message> allMessages = businessController.AllMessages(loggedUser, request.Recipient());
+
+                var messagesString = new List<string[]>();
+
+                allMessages.ForEach(ms => messagesString.Add(new[] { ms.Sender, ms.Content }));
+
+                if (messagesString.Count > 0)
+                    conn.SendMessage(BuildResponse(ResponseCode.Ok, messagesString.ToArray()));
+                else
+                    conn.SendMessage(BuildResponse(ResponseCode.NotFound));
             }
             catch (RecordNotFoundException e)
             {

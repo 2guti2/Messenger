@@ -28,6 +28,20 @@ namespace Protocol
             return messages;
         }
 
+        public List<string> Conversation(string me)
+        {
+            var conversation = new List<string>();
+
+            for (int i = 1; i < responseObject.Length; i++)
+            {
+                string sender = responseObject[i][0][0];
+                string message = (sender.Equals(me) ? "" : sender + ": ") + responseObject[i][1][0];
+                conversation.Add(message);
+            }
+
+            return conversation;
+        }
+
         public bool HadSuccess()
         {
             return HasCode(Protocol.ResponseCode.Ok);

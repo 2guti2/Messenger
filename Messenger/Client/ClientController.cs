@@ -142,7 +142,7 @@ namespace Client
 
         private void PrintUsers(List<string> users)
         {
-            users.ForEach(u => Console.WriteLine(u));
+            users.ForEach(Console.WriteLine);
         }
 
         private void ConnectToServer()
@@ -262,41 +262,13 @@ namespace Client
 
         private void Chat()
         {
-            List<string> chatOptions = new List<string>(
-                new[]
-                {
-                    "Start new conversation",
-                    "View my current conversations"
-                });
-
-            int chatOptionsInput = Menus.MapInputWithMenuItemsList(chatOptions);
-
-            switch (chatOptionsInput)
-            {
-                case 1:
-                    StartNewConversation();
-                    break;
-                case 2:
-                    ViewCurrentConversations();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void ViewCurrentConversations()
-        {
-            return;
-            throw new NotImplementedException();
-        }
-
-        private void StartNewConversation()
-        {
             Console.WriteLine("Select a friend to send a message to:");
             List<string> friends = FriendsList();
 
             int input = Menus.MapInputWithMenuItemsList(friends);
             input--;
+
+            PrintConversations(friends[input]);
 
             Console.WriteLine("Type the content of your message:");
             string message = Console.ReadLine();
@@ -314,6 +286,21 @@ namespace Client
             }
         }
 
+        private void PrintConversations(string friend)
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.GetConversation, friend);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            connection.Close();
+
+            if (response.HadSuccess())
+            {
+                response.Conversation(clientUsername).ForEach(Console.WriteLine);
+            }
+        }
+
         private void StartChat(string counterpartUsername)
         {
             var thread = new Thread(() => PrintWhatTheyWrite(counterpartUsername));
@@ -328,6 +315,7 @@ namespace Client
                 var messageSendingThread = new Thread(() => SendMessage(counterpartUsername, myAnswer));
                 messageSendingThread.Start();
             }
+            thread.Abort();
         }
 
         private void SendMessage(string counterpartUsername, string myAnswer)

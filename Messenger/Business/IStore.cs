@@ -10,5 +10,6 @@ namespace Business
         List<Client> GetFriendsOf(Client client);
         void SendMessage(string usernameFrom, string usernameTo, string message);
         List<Message> UnreadMessages(Client of, string from);
+        List<Message> AllMessages(Client of, string @from);
     }
 }

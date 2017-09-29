@@ -102,5 +102,13 @@ namespace Business
                 Store.SendMessage(usernameFrom, usernameTo, message);
             }
         }
+
+        public List<Message> AllMessages(Client loggedUser, string recipient)
+        {
+            lock (_locker)
+            {
+                return Store.AllMessages(loggedUser, recipient);
+            }
+        }
     }
 }

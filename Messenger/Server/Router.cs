@@ -43,6 +43,9 @@ namespace Server
                     case Command.ReadMessage:
                         serverController.ReadMessage(conn, request);
                         break;
+                    case Command.GetConversation:
+                        serverController.GetConversation(conn, request);
+                        break;
                     case Command.DisconnectUser:
                         serverController.DisconnectUser(conn, request);
                         break;
