@@ -4,14 +4,9 @@ namespace UI
 {
     public class ClientUI
     {
-        public static string WelcomeMessage()
-        {
-            return Resources.Welcome;
-        }
-
         public static string Title(string username = null)
         {
-            string t = "";
+            var t = "";
             if (username != null) t += "You are connected as : " + username + "\n";
             t += " __  __\n";
             t += "|  \\/  |\n";

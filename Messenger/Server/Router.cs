@@ -39,6 +39,9 @@ namespace Server
                     case Command.ConfirmFriendshipRequest:
                         serverController.ConfirmFriendshipRequest(conn, request);
                         break;
+                    case Command.RejectFriendshipRequest:
+                        serverController.RejectFriendshipRequest(conn, request);
+                        break;
                     case Command.DisconnectUser:
                         serverController.DisconnectUser(conn, request);
                         break;

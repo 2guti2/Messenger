@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Protocol;
 using UI;
 using System.Configuration;
-using Business;
 
 namespace Client
 {
@@ -34,14 +33,14 @@ namespace Client
             }
         }
 
-        public void Init()
+        private void Init()
         {
             Console.WriteLine(ClientUI.Title());
             ConnectToServer();
             ClientUI.Clear();
         }
 
-        public void ListConnectedUsers()
+        private void ListConnectedUsers()
         {
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListOfConnectedUsers);
@@ -55,7 +54,7 @@ namespace Client
             connection.Close();
         }
 
-        public void SendFriendshipRequest()
+        private void SendFriendshipRequest()
         {
             Connection connection = clientProtocol.ConnectToServer();
             Console.WriteLine(ClientUI.TheseAreTheConnectedUsers());
@@ -77,7 +76,7 @@ namespace Client
             connection.Close();
         }
 
-        public void ListMyFriends()
+        private void ListMyFriends()
         {
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListMyFriends);
@@ -91,24 +90,21 @@ namespace Client
             connection.Close();
         }
 
-        public void AcceptFriendshipRequest()
+        private void RespondToFriendshipRequest()
         {
             string[][] requests = GetFriendshipRequests();
             if (requests.Length > 0)
             {
                 string requestId = Menus.SelectRequest(requests);
-                Connection conn = clientProtocol.ConnectToServer();
-                conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
-                var response = new Response(conn.ReadMessage());
-                if (response.HadSuccess())
+                bool acceptRequest = Input.YesOrNo("Accept or reject this request");
+                if (acceptRequest)
                 {
-                    Console.WriteLine("Added " + response.GetUsername() + " as a friend");
+                    AcceptFriendshipRequest(requestId);
                 }
                 else
                 {
-                    Console.WriteLine(response.ErrorMessage());
+                    RejectFriendshipRequest(requestId);
                 }
-                conn.Close();
             }
             else
             {
@@ -116,7 +112,7 @@ namespace Client
             }
         }
 
-        public List<string> MenuOptions()
+        private List<string> MenuOptions()
         {
             return new List<string>(
                 new[]
@@ -124,16 +120,41 @@ namespace Client
                     "List Connected Users",
                     "List My Friends",
                     "Send Friendship Request",
-                    "Accept Friendship Request",
+                    "Respond to Friendship Request",
                     "Chat",
                     "Exit"
                 });
         }
 
-        public void DisconnectFromServer()
+        private void DisconnectFromServer()
         {
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(BuildRequest(Command.DisconnectUser));
+        }
+
+        private void AcceptFriendshipRequest(string requestId)
+        {
+            Connection conn = clientProtocol.ConnectToServer();
+            conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
+            var response = new Response(conn.ReadMessage());
+            if (response.HadSuccess())
+            {
+                Console.WriteLine("Added " + response.GetUsername() + " as a friend");
+            }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+            }
+            conn.Close();
+        }
+
+        private void RejectFriendshipRequest(string requestId)
+        {
+            Connection conn = clientProtocol.ConnectToServer();
+            conn.SendMessage(BuildRequest(Command.RejectFriendshipRequest, requestId));
+            var response = new Response(conn.ReadMessage());
+            Console.WriteLine(response.HadSuccess() ? "Friendship request removed" : response.ErrorMessage());
+            conn.Close();
         }
 
         private string[][] GetFriendshipRequests()
@@ -224,7 +245,7 @@ namespace Client
                     SendFriendshipRequest();
                     break;
                 case 4:
-                    AcceptFriendshipRequest();
+                    RespondToFriendshipRequest();
                     break;
                 case 5:
                     Chat();
