@@ -14,13 +14,18 @@ namespace Business
             Friends = new List<Client>();
             FriendshipRequests = new List<FriendshipRequest>();
             Conversations = new List<Conversation>();
+            Sessions = new List<Session>();
         }
 
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public List<Client> Friends { get; set; }
-        public List<FriendshipRequest> FriendshipRequests { get; set; }
-        public List<Conversation> Conversations { get; set; }
+        public string Username { get; private set; }
+        public string Password { get; private set; }
+        public List<Client> Friends { get; private set; }
+        public List<FriendshipRequest> FriendshipRequests { get; private set; }
+        public int FriendsCount => Friends.Count;
+        public DateTime? ConnectedSince => Sessions.Find(session => session.Active)?.ConnectedSince;
+        public int ConnectionsCount => Sessions.Count;
+        private List<Session> Sessions { get; }
+        private List<Conversation> Conversations { get; }
 
         public override bool Equals(object obj)
         {
@@ -50,12 +55,19 @@ namespace Business
             }
         }
 
+        public void AddSession(Session session)
+        {
+            Sessions.Add(session);
+        }
+
         public FriendshipRequest ConfirmRequest(string requestId)
         {
             FriendshipRequest request = FriendshipRequests.Find(r => r.Id.ToString().Equals(requestId));
             if (request == null)
                 throw new RecordNotFoundException("The request was not found");
             AddFriend(request.Sender);
+            request.Sender.AddFriend(this);
+
             FriendshipRequests.Remove(request);
 
             return request;
