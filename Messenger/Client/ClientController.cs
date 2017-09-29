@@ -21,7 +21,9 @@ namespace Client
             clientUsername = null;
             string serverIp = GetServerIpFromConfigFile();
             int serverPort = GetServerPortFromConfigFile();
-            clientProtocol = new ClientProtocol(serverIp, serverPort);
+            string clientIp = GetClientIpFromConfigFile();
+            int clientPort = GetClientPortFromConfigFile();
+            clientProtocol = new ClientProtocol(serverIp, serverPort, clientIp, clientPort);
         }
 
         internal void LoopMenu()
@@ -219,6 +221,19 @@ namespace Client
             var appSettings = new AppSettingsReader();
             return (int) appSettings.GetValue("ServerPort", typeof(int));
         }
+
+        private string GetClientIpFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (string)appSettings.GetValue("ClientIp", typeof(string));
+        }
+
+        private int GetClientPortFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (int)appSettings.GetValue("ClientPort", typeof(int));
+        }
+
 
         private Business.Client AskForCredentials()
         {
