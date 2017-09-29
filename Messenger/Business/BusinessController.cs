@@ -59,8 +59,8 @@ namespace Business
         public string[][] GetFriendshipRequests(Client currentClient)
         {
             List<FriendshipRequest> requests = currentClient.FriendshipRequests;
-            string[][] formattedRequests = new string[requests.Count][];
-            for (int i = 0; i < requests.Count; i++)
+            var formattedRequests = new string[requests.Count][];
+            for (var i = 0; i < requests.Count; i++)
             {
                 formattedRequests[i] = new[] {requests[i].Id.ToString(), requests[i].Sender.Username};
             }
@@ -77,9 +77,9 @@ namespace Business
             return currentClient.ConfirmRequest(requestId);
         }
 
-        public List<Session> GetActiveSessions()
+        public void RejectFriendshipRequest(Client currentClient, string requestId)
         {
-            return  Server.ConnectedClients;
+            currentClient.RejectRequest(requestId);
         }
         
         public List<Client> GetClients()

@@ -40,5 +40,29 @@ namespace UI
 
             return option;
         }
+
+        public static bool YesOrNo(string message)
+        {
+            bool response;
+            while(true)
+            {
+                Console.Write(message + "[y/n]");
+                string rawResponse = Console.ReadLine();
+                
+                if (rawResponse == "y")
+                {
+                    response = true;
+                    break;
+                }
+                if (rawResponse == "n")
+                {
+                    response = false;
+                    break;
+                }
+                Console.WriteLine("Answer y or n");
+            }
+
+            return response;
+        }
     }
 }

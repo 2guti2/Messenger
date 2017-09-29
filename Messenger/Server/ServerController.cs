@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Business;
 using Business.Exceptions;
-using Persistence;
 using Protocol;
 
 namespace Server
@@ -114,6 +112,21 @@ namespace Server
             catch (BusinessException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
+            }
+        }
+
+        public void RejectFriendshipRequest(Connection conn, Request req)
+        {
+            try
+            {
+                Client currentClient = CurrentClient(req);
+                string requestId = req.FriendshipRequestId();
+                businessController.RejectFriendshipRequest(currentClient, requestId);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
             }
         }
 
