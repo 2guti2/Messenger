@@ -316,23 +316,28 @@ namespace Client
 
         private void StartChat(string counterpartUsername)
         {
-            Console.WriteLine("talking");
-            var talking = true;
             var thread = new Thread(() => PrintWhatTheyWrite(counterpartUsername));
             thread.Start();
-            while (talking)
+            while (true)
             {
                 string myAnswer = Input.RequestString();
 
-                Connection connection = clientProtocol.ConnectToServer();
-                connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
-                var sendMessageResponse = new Response(connection.ReadMessage());
-                if (!sendMessageResponse.HadSuccess())
-                    Console.WriteLine(sendMessageResponse.ErrorMessage());
-                connection.Close();
                 if (myAnswer.Equals("exit"))
-                    talking = false;
+                    break;
+
+                var messageSendingThread = new Thread(() => SendMessage(counterpartUsername, myAnswer));
+                messageSendingThread.Start();
             }
+        }
+
+        private void SendMessage(string counterpartUsername, string myAnswer)
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
+            var sendMessageResponse = new Response(connection.ReadMessage());
+            if (!sendMessageResponse.HadSuccess())
+                Console.WriteLine(sendMessageResponse.ErrorMessage());
+            connection.Close();
         }
 
         private void PrintWhatTheyWrite(string counterpart)
@@ -346,9 +351,9 @@ namespace Client
                 var readMessageResponse = new Response(connection.ReadMessage());
 
                 if (readMessageResponse.HadSuccess())
-                    Console.WriteLine(counterpart + ": " + readMessageResponse.Message);
+                    readMessageResponse.Messages().ForEach(m => Console.WriteLine(counterpart + ": " + readMessageResponse.Message));
 
-                Thread.Sleep(3000);
+                Thread.Sleep(500);
             }
         }
     }

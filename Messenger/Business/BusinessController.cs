@@ -8,6 +8,7 @@ namespace Business
     {
         private IStore Store { get; set; }
         private Server Server { get; set; }
+        private readonly object _locker = new object();
 
         public BusinessController(IStore store)
         {
@@ -67,7 +68,10 @@ namespace Business
 
         public List<Message> UnreadMessages(Client of, string from)
         {
-            return Store.UnreadMessages(of, from);
+            lock (_locker)
+            {
+                return Store.UnreadMessages(of, from);
+            }
         }
 
         public List<string> GetNotificationsOf(Client loggedUser)
@@ -93,7 +97,10 @@ namespace Business
 
         public void SendMessage(string usernameFrom, string usernameTo, string message)
         {
-            Store.SendMessage(usernameFrom, usernameTo, message);
+            lock (_locker)
+            {
+                Store.SendMessage(usernameFrom, usernameTo, message);
+            }
         }
     }
 }
