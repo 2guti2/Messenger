@@ -136,7 +136,7 @@ namespace Client
                 });
         }
 
-        private void DisconnectFromServer()
+        public void DisconnectFromServer()
         {
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(BuildRequest(Command.DisconnectUser));
