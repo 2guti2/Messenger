@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Protocol
 {
-    public class Serializer
+    public static class Serializer
     {
         private static readonly char[] separators = {'|', '%', '.'};
 
@@ -19,10 +19,10 @@ namespace Protocol
                 if (objectArray[i] is Array)
                     serializedObjects[i] = Serialize((object[]) objectArray[i], level + 1);
                 else
-                    serializedObjects[i] = objectArray[i].ToString();
+                    serializedObjects[i] = EscapeSpecialChars(objectArray[i].ToString());
             }
-            
-            var levelSeparator = level == 0 ? separators[0].ToString() : "";
+
+            string levelSeparator = level == 0 ? separators[0].ToString() : "";
             return levelSeparator + string.Join(separators[level].ToString(), serializedObjects) + levelSeparator;
         }
 
@@ -30,8 +30,8 @@ namespace Protocol
         {
             // Regex stops matching when it finds a backslash 
             // so it matches only the unescaped separators
-            var trimmedObject = serializedObj.Trim('|');
-            var firstLevelObjects = Regex.Split(trimmedObject, @"(?<!\\)\|");
+            string trimmedObject = serializedObj.Trim('|');
+            string[] firstLevelObjects = Regex.Split(trimmedObject, @"(?<!\\)\|");
             var secondLevelObjects = new string[firstLevelObjects.Length][];
             for (var i = 0; i < firstLevelObjects.Length; i++)
             {
@@ -43,12 +43,26 @@ namespace Protocol
                 thirdLevelObjects[i] = new string[secondLevelObjects[i].Length][];
                 for (var j = 0; j < secondLevelObjects[i].Length; j++)
                 {
-                    var serializedObject = secondLevelObjects[i][j];
+                    string serializedObject = secondLevelObjects[i][j];
                     thirdLevelObjects[i][j] = Regex.Split(serializedObject, @"(?<!\\)\.");
+                    for (var k = 0; k < thirdLevelObjects[i][j].Length; k++)
+                    {
+                        thirdLevelObjects[i][j][k] = UnescapeSpecialChars(thirdLevelObjects[i][j][k]);
+                    }
                 }
             }
 
             return thirdLevelObjects;
+        }
+
+        private static string EscapeSpecialChars(string str)
+        {
+            return str.Replace("|", "\\|").Replace("%", "\\%").Replace(".", "\\.");
+        }
+
+        private static string UnescapeSpecialChars(string str)
+        {
+            return str.Replace("\\|", "|").Replace("\\%", "%").Replace("\\.", ".");
         }
     }
 }
