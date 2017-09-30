@@ -42,9 +42,6 @@ namespace Server
                     case Command.RejectFriendshipRequest:
                         serverController.RejectFriendshipRequest(conn, request);
                         break;
-                    case Command.Notifications:
-                        serverController.ListNotifications(conn, request);
-                        break;
                     case Command.SendMessage:
                         serverController.SendMessage(conn, request);
                         break;

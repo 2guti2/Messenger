@@ -21,7 +21,7 @@ namespace Client
 //                SetConsoleCtrlHandler(handler, true);
                 clientController.LoopMenu();
             }
-            catch (SocketException)
+            catch (Exception)
             {
                 Console.WriteLine("There was a problem connecting to the server, the app will exit");
                 Console.ReadKey();
