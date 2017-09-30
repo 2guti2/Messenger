@@ -79,25 +79,6 @@ namespace Server
             }
         }
 
-        public void ListNotifications(Connection conn, Request request)
-        {
-            try
-            {
-                Client loggedUser = CurrentClient(request);
-                List<string> notifications = businessController.GetNotificationsOf(loggedUser);
-
-                conn.SendMessage(BuildResponse(ResponseCode.Ok, notifications.ToArray()));
-            }
-            catch (RecordNotFoundException e)
-            {
-                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
-            }
-            catch (ClientNotConnectedException e)
-            {
-                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
-            }
-        }
-
         public void ListMyFriends(Connection conn, Request request)
         {
             try

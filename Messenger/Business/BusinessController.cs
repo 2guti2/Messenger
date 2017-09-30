@@ -76,17 +76,6 @@ namespace Business
             }
         }
 
-        public List<string> GetNotificationsOf(Client loggedUser)
-        {
-            var notifications = new List<string>();
-            Client storedClient = Store.GetClient(loggedUser.Username);
-
-            string friendshipRequests = storedClient.FriendshipRequests.Count.ToString();
-
-            notifications.Add(friendshipRequests);
-            return notifications;
-        }
-
         public List<Client> GetFriendsOf(Client client)
         {
             return Store.GetFriendsOf(client);

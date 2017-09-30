@@ -31,7 +31,7 @@ namespace Client
             Init();
             while (true)
             {
-                Console.WriteLine(ClientUI.Title(GetNotifications(), clientUsername));
+                Console.WriteLine(ClientUI.Title(clientUsername));
                 int option = Menus.MapInputWithMenuItemsList(MenuOptions());
                 MapOptionToActionOfMainMenu(option);
                 ClientUI.Clear();
@@ -280,22 +280,6 @@ namespace Client
                     Environment.Exit(0);
                     break;
             }
-        }
-
-        private List<int> GetNotifications()
-        {
-            var notifications = new List<int>();
-            Connection connection = clientProtocol.ConnectToServer();
-            object[] request = BuildRequest(Command.Notifications);
-            connection.SendMessage(request);
-
-            var response = new Response(connection.ReadMessage());
-            if (response.HadSuccess())
-            {
-                notifications = response.Notifications();
-            }
-            connection.Close();
-            return notifications;
         }
 
         private void Chat()
