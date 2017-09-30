@@ -66,7 +66,6 @@ namespace Business
             if (request == null)
                 throw new RecordNotFoundException("The request was not found");
             AddFriend(request.Sender);
-            request.Sender.AddFriend(this);
 
             FriendshipRequests.Remove(request);
 

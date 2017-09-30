@@ -8,7 +8,9 @@ namespace Business
     {
         private IStore Store { get; set; }
         private Server Server { get; set; }
-        private readonly object _locker = new object();
+        private readonly object messagesLocker = new object();
+        private readonly object loginLocker = new object();
+        private readonly object friendshipLocker = new object();
 
         public BusinessController(IStore store)
         {
@@ -18,59 +20,76 @@ namespace Business
 
         public string Login(Client client)
         {
-            if (!Store.ClientExists(client))
-                Store.AddClient(client);
-            Client storedClient = Store.GetClient(client.Username);
-            bool isValidPassword = storedClient.ValidatePassword(client.Password);
-            bool isClientConnected = Server.IsClientConnected(client);
-            if (isValidPassword && isClientConnected)
-                throw new ClientAlreadyConnectedException();
+            lock (loginLocker)
+            {
+                if (!Store.ClientExists(client))
+                    Store.AddClient(client);
+                Client storedClient = Store.GetClient(client.Username);
+                bool isValidPassword = storedClient.ValidatePassword(client.Password);
+                bool isClientConnected = Server.IsClientConnected(client);
+                if (isValidPassword && isClientConnected)
+                    throw new ClientAlreadyConnectedException();
 
-            return isValidPassword ? Server.ConnectClient(storedClient) : "";
+                return isValidPassword ? Server.ConnectClient(storedClient) : "";
+            }
         }
 
         public Client FriendshipRequest(Client sender, string receiverUsername)
         {
-            Client receiver = Store.GetClient(receiverUsername);
-            if (receiver == null)
-                throw new RecordNotFoundException("The client doesn't exist");
-            receiver.AddFriendshipRequest(sender);
+            lock (friendshipLocker)
+            {
+                Client receiver = Store.GetClient(receiverUsername);
+                if (receiver == null) throw new RecordNotFoundException("The client doesn't exist");
+                receiver.AddFriendshipRequest(sender);
 
-            return receiver;
+                return receiver;
+            }
         }
 
         public Client GetLoggedClient(string userToken)
         {
-            Client loggedUser = Server.GetLoggedClient(userToken);
-            if (loggedUser == null)
-                throw new ClientNotConnectedException();
-            return loggedUser;
+            lock (loginLocker)
+            {
+                Client loggedUser = Server.GetLoggedClient(userToken);
+                if (loggedUser == null)
+                    throw new ClientNotConnectedException();
+                return loggedUser;
+            }
         }
 
         public List<Client> GetLoggedClients()
         {
-            return Server.GetLoggedClients();
+            lock (loginLocker)
+            {
+                return Server.GetLoggedClients();
+            }
         }
 
         public void DisconnectClient(string token)
         {
-            Server.DisconnectClient(token);
+            lock (loginLocker)
+            {
+                Server.DisconnectClient(token);
+            }
         }
 
         public string[][] GetFriendshipRequests(Client currentClient)
         {
-            List<FriendshipRequest> requests = currentClient.FriendshipRequests;
-            var formattedRequests = new string[requests.Count][];
-            for (var i = 0; i < requests.Count; i++)
+            lock (friendshipLocker)
             {
-                formattedRequests[i] = new[] {requests[i].Id.ToString(), requests[i].Sender.Username};
+                List<FriendshipRequest> requests = currentClient.FriendshipRequests;
+                var formattedRequests = new string[requests.Count][];
+                for (var i = 0; i < requests.Count; i++)
+                {
+                    formattedRequests[i] = new[] {requests[i].Id.ToString(), requests[i].Sender.Username};
+                }
+                return formattedRequests;
             }
-            return formattedRequests;
         }
 
         public List<Message> UnreadMessages(Client of, string from)
         {
-            lock (_locker)
+            lock (messagesLocker)
             {
                 return Store.UnreadMessages(of, from);
             }
@@ -89,17 +108,31 @@ namespace Business
 
         public List<Client> GetFriendsOf(Client client)
         {
-            return Store.GetFriendsOf(client);
+            lock (friendshipLocker)
+            {
+                return Store.GetFriendsOf(client);
+            }
         }
 
         public FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId)
         {
-            return currentClient.ConfirmRequest(requestId);
+            lock (friendshipLocker)
+            {
+                return currentClient.ConfirmRequest(requestId);
+            }
+        }
+
+        public void RejectFriendshipRequest(Client currentClient, string requestId)
+        {
+            lock (friendshipLocker)
+            {
+                currentClient.RejectRequest(requestId);
+            }
         }
 
         public void SendMessage(string usernameFrom, string usernameTo, string message)
         {
-            lock (_locker)
+            lock (messagesLocker)
             {
                 Store.SendMessage(usernameFrom, usernameTo, message);
             }
@@ -107,20 +140,18 @@ namespace Business
 
         public List<Message> AllMessages(Client loggedUser, string recipient)
         {
-            lock (_locker)
+            lock (messagesLocker)
             {
                 return Store.AllMessages(loggedUser, recipient);
             }
         }
 
-        public void RejectFriendshipRequest(Client currentClient, string requestId)
-        {
-            currentClient.RejectRequest(requestId);
-        }
-        
         public List<Client> GetClients()
         {
-            return  Store.GetClients();
+            lock (loginLocker)
+            {
+                return Store.GetClients();
+            }
         }
     }
 }
