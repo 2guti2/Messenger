@@ -30,6 +30,9 @@ namespace Server
                     case Command.ListOfConnectedUsers:
                         serverController.ListConnectedUsers(conn, request);
                         break;
+                    case Command.ListOfAllClients:
+                        serverController.ListAllUsers(conn, request);
+                        break;
                     case Command.ListMyFriends:
                         serverController.ListMyFriends(conn, request);
                         break;

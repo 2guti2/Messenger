@@ -178,6 +178,29 @@ namespace Server
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
         }
+        
+        public void ListAllUsers(Connection conn, Request request)
+        {
+            try
+            {
+                Client loggedUser = CurrentClient(request);
+                List<Client> clients = businessController.GetClients();
+
+                string[] clientsUsernames =
+                    clients.Where(client => !client.Equals(loggedUser)).Select(c => c.Username)
+                        .ToArray();
+
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, clientsUsernames));
+            }
+            catch (RecordNotFoundException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
 
         public void DisconnectUser(Connection conn, Request request)
         {

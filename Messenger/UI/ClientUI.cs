@@ -54,7 +54,7 @@ namespace UI
 
         public static string TheseAreTheConnectedUsers()
         {
-            return "This are the connected users:";
+            return "These are the connected users:";
         }
 
         public static string LoginSuccessful()

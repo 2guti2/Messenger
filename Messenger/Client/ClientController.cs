@@ -28,6 +28,12 @@ namespace Client
             clientProtocol = new ClientProtocol(serverIp, serverPort, clientIp, clientPort);
         }
 
+        public void DisconnectFromServer()
+        {
+            Connection connection = clientProtocol.ConnectToServer();
+            connection.SendMessage(BuildRequest(Command.DisconnectUser));
+        }
+
         internal void LoopMenu()
         {
             Init();
@@ -47,8 +53,9 @@ namespace Client
             ClientUI.Clear();
         }
 
-        private void ListConnectedUsers()
+        private bool ListConnectedUsers()
         {
+            bool serverHasClients;
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListOfConnectedUsers);
             connection.SendMessage(request);
@@ -56,24 +63,59 @@ namespace Client
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
-                PrintUsers(response.UserList());
+                Console.WriteLine(ClientUI.TheseAreTheConnectedUsers());
+                List<string> connectedClients = response.UserList();
+                PrintUsers(connectedClients);
+                serverHasClients = connectedClients.Count > 0;
             }
             else
             {
                 Console.WriteLine(response.ErrorMessage());
+                serverHasClients = false;
             }
             connection.Close();
+
+            return serverHasClients;
+        }
+        
+        private bool ListAllClients()
+        {
+            bool serverHasClients;
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.ListOfAllClients);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                Console.WriteLine("These are the registered clients");
+                List<string> clients = response.UserList();
+                PrintUsers(clients);
+                serverHasClients = clients.Count > 0;
+            }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+                serverHasClients = false;
+            }
+            connection.Close();
+
+            return serverHasClients;
         }
 
         private void SendFriendshipRequest()
         {
-            Connection connection = clientProtocol.ConnectToServer();
-            Console.WriteLine(ClientUI.TheseAreTheConnectedUsers());
-            ListConnectedUsers();
+            bool serverHasClients = ListAllClients();
+            if (!serverHasClients)
+            {
+                Console.WriteLine("There are no other registered clients");
+                return;
+            }
             Console.WriteLine(ClientUI.PromptUsername());
             string username = Input.RequestString();
             object[] request = BuildRequest(Command.FriendshipRequest, username);
 
+            Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(request);
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
@@ -168,12 +210,6 @@ namespace Client
                 });
         }
 
-        public void DisconnectFromServer()
-        {
-            Connection connection = clientProtocol.ConnectToServer();
-            connection.SendMessage(BuildRequest(Command.DisconnectUser));
-        }
-
         private void AcceptFriendshipRequest(string requestId)
         {
             Connection conn = clientProtocol.ConnectToServer();
@@ -264,7 +300,6 @@ namespace Client
             return (int) appSettings.GetValue("ClientPort", typeof(int));
         }
 
-
         private Business.Client AskForCredentials()
         {
             Console.WriteLine(ClientUI.LoginTitle());
@@ -286,7 +321,7 @@ namespace Client
             return request.ToArray();
         }
 
-        public void MapOptionToActionOfMainMenu(int option)
+        private void MapOptionToActionOfMainMenu(int option)
         {
             switch (option)
             {
@@ -316,7 +351,11 @@ namespace Client
         {
             Console.WriteLine("Select a friend to send a message to:");
             List<string> friends = FriendsList();
-
+            if (friends.Count == 0)
+            {
+                Console.WriteLine(@"You have no friends ¯\_(ツ)_/¯");
+                return;
+            }
             int input = Menus.MapInputWithMenuItemsList(friends);
             input--;
 
