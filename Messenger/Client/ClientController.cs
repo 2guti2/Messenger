@@ -79,10 +79,10 @@ namespace Client
 
             return serverHasClients;
         }
-        
-        private bool ListAllClients()
+
+        private List<string> GetListOfAllClients()
         {
-            bool serverHasClients;
+            var clients = new List<string>();
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListOfAllClients);
             connection.SendMessage(request);
@@ -90,31 +90,25 @@ namespace Client
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
-                Console.WriteLine("These are the registered clients");
-                List<string> clients = response.UserList();
-                PrintUsers(clients);
-                serverHasClients = clients.Count > 0;
+                clients = response.UserList();
             }
-            else
-            {
-                Console.WriteLine(response.ErrorMessage());
-                serverHasClients = false;
-            }
-            connection.Close();
 
-            return serverHasClients;
+            connection.Close();
+            return clients;
         }
 
         private void SendFriendshipRequest()
         {
-            bool serverHasClients = ListAllClients();
-            if (!serverHasClients)
+            List<string> clients = GetListOfAllClients();
+            if (clients.Count == 0)
             {
                 Console.WriteLine("There are no other registered clients");
                 return;
             }
-            Console.WriteLine(ClientUI.PromptUsername());
-            string username = Input.RequestString();
+            Console.WriteLine("These are the connected users:");
+            int input = Menus.MapInputWithMenuItemsList(clients);
+            input--;
+            string username = clients[input];
             object[] request = BuildRequest(Command.FriendshipRequest, username);
 
             Connection connection = clientProtocol.ConnectToServer();
@@ -355,18 +349,19 @@ namespace Client
             List<string> friends = FriendsList();
             if (friends.Count == 0)
             {
-                Console.WriteLine(@"You have no friends ¯\_(ツ)_/¯");
+                Console.WriteLine("You have no friends ¯\\_(ツ)_/¯");
                 return;
             }
             int input = Menus.MapInputWithMenuItemsList(friends);
             input--;
-
+            Console.Clear();
+            Console.WriteLine("YOU ARE CHATTING WITH " + friends[input]);
             PrintConversations(friends[input]);
 
             Console.WriteLine("Type the content of your message:");
             string message = Input.RequestString();
             
-            Console.WriteLine("Puedes salir del chat escribiendo 'exit'.");
+            Console.WriteLine("You can leave the conversation typing 'exit'.");
 
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.SendMessage, friends[input], message);
