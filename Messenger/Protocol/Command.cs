@@ -10,7 +10,6 @@
         RejectFriendshipRequest,
         DisconnectUser,
         ListMyFriends,
-        Notifications,
         SendMessage,
         ReadMessage,
         GetConversation
