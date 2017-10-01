@@ -58,12 +58,12 @@ namespace Protocol
             return users;
         }
 
-        public List<int> Notifications()
+        public List<string> UserWithFriendsCountList()
         {
-            var notifications = new List<int>();
-            for (int i = 1; i < responseObject.Length; i++)
-                notifications.Add(int.Parse(responseObject[i][0][0]));
-            return notifications;
+            var users = new List<string>();
+            for (var i = 1; i < responseObject.Length; i++)
+                users.Add($"- {responseObject[i][0][0]} ({responseObject[i][1][0]})");
+            return users;
         }
 
         public string[][] FriendshipRequests()
