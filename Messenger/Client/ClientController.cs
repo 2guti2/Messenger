@@ -83,10 +83,10 @@ namespace Client
 
         private void ListMyFriends()
         {
-            PrintUsers(FriendsList());
+            PrintUsers(FriendsWithFriendsCountList());
         }
 
-        public List<string> FriendsList()
+        private List<string> FriendsList()
         {
             var friends = new List<string>();
             Connection connection = clientProtocol.ConnectToServer();
@@ -97,6 +97,22 @@ namespace Client
             if (response.HadSuccess())
             {
                 friends = response.UserList();
+            }
+            connection.Close();
+            return friends;
+        }
+
+        private List<string> FriendsWithFriendsCountList()
+        {
+            var friends = new List<string>();
+            Connection connection = clientProtocol.ConnectToServer();
+            object[] request = BuildRequest(Command.ListMyFriends);
+            connection.SendMessage(request);
+
+            var response = new Response(connection.ReadMessage());
+            if (response.HadSuccess())
+            {
+                friends = response.UserWithFriendsCountList();
             }
             connection.Close();
             return friends;

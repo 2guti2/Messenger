@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Business;
 using Business.Exceptions;
 using Protocol;
@@ -85,11 +86,11 @@ namespace Server
             {
                 Client loggedUser = CurrentClient(request);
                 List<Client> friends = businessController.GetFriendsOf(loggedUser);
-                var friendsUsernames = new List<string>();
+                var clientFriends = new List<string[]>();
 
-                friends.ForEach(c => friendsUsernames.Add(c.Username));
+                friends.ForEach(c => clientFriends.Add(new[] {c.Username, c.FriendsCount.ToString()}));
 
-                conn.SendMessage(BuildResponse(ResponseCode.Ok, friendsUsernames.ToArray()));
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, clientFriends.ToArray()));
             }
             catch (RecordNotFoundException e)
             {
@@ -161,11 +162,12 @@ namespace Server
             {
                 Client loggedUser = CurrentClient(request);
                 List<Client> connectedUsers = businessController.GetLoggedClients();
-                var connectedUsernames = new List<string>();
 
-                connectedUsers.ForEach(c => connectedUsernames.Add(c.Username));
+                string[] connectedUsernames =
+                    connectedUsers.Where(client => !client.Equals(loggedUser)).Select(c => c.Username)
+                        .ToArray();
 
-                conn.SendMessage(BuildResponse(ResponseCode.Ok, connectedUsernames.ToArray()));
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, connectedUsernames));
             }
             catch (RecordNotFoundException e)
             {
@@ -233,7 +235,7 @@ namespace Server
 
                 var messagesString = new List<string[]>();
 
-                allMessages.ForEach(ms => messagesString.Add(new[] { ms.Sender, ms.Content }));
+                allMessages.ForEach(ms => messagesString.Add(new[] {ms.Sender, ms.Content}));
 
                 if (messagesString.Count > 0)
                     conn.SendMessage(BuildResponse(ResponseCode.Ok, messagesString.ToArray()));
