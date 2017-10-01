@@ -65,10 +65,7 @@ namespace Server
                 var unreadMessagesString = new List<string>();
 
                 unreadMessages.ForEach(um => unreadMessagesString.Add(um.Content));
-                if (unreadMessagesString.Count > 0)
-                    conn.SendMessage(BuildResponse(ResponseCode.Ok, unreadMessagesString.ToArray()));
-                else
-                    conn.SendMessage(BuildResponse(ResponseCode.NotFound));
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, unreadMessagesString.ToArray()));
             }
             catch (RecordNotFoundException e)
             {
@@ -205,6 +202,7 @@ namespace Server
         public void DisconnectUser(Connection conn, Request request)
         {
             businessController.DisconnectClient(request.UserToken());
+            conn.SendMessage(BuildResponse(ResponseCode.Ok, "Client disconnected"));
         }
 
         public void InvalidCommand(Connection conn)
@@ -260,10 +258,7 @@ namespace Server
 
                 allMessages.ForEach(ms => messagesString.Add(new[] {ms.Sender, ms.Content}));
 
-                if (messagesString.Count > 0)
-                    conn.SendMessage(BuildResponse(ResponseCode.Ok, messagesString.ToArray()));
-                else
-                    conn.SendMessage(BuildResponse(ResponseCode.NotFound));
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, messagesString.ToArray()));
             }
             catch (RecordNotFoundException e)
             {

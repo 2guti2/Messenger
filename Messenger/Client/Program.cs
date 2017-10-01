@@ -21,10 +21,16 @@ namespace Client
 //                SetConsoleCtrlHandler(handler, true);
                 clientController.LoopMenu();
             }
-            catch (Exception)
+            catch (SocketException e)
             {
                 Console.WriteLine("There was a problem connecting to the server, the app will exit");
                 Console.ReadKey();
+                Environment.Exit(1);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("There was a problem with something you did, the app will exit");
+                clientController.DisconnectFromServer();
                 Environment.Exit(1);
             }
         }

@@ -32,6 +32,8 @@ namespace Client
         {
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(BuildRequest(Command.DisconnectUser));
+            var response = new Response(connection.ReadMessage());
+            Console.WriteLine(response.HadSuccess() ? "Disconnected" : response.ErrorMessage());
         }
 
         internal void LoopMenu()
@@ -362,7 +364,7 @@ namespace Client
             PrintConversations(friends[input]);
 
             Console.WriteLine("Type the content of your message:");
-            string message = Console.ReadLine();
+            string message = Input.RequestString();
 
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.SendMessage, friends[input], message);

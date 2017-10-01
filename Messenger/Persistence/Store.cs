@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using Business;
+using Business.Exceptions;
 
 namespace Persistence
 {
@@ -73,7 +74,7 @@ namespace Persistence
 
             Client clientOf = Clients.Find(c => c.Equals(of));
 
-            if (clientOf == null) return messages;
+            if (clientOf == null) throw new RecordNotFoundException("Client was not found");
 
             messages.AddRange
             (
