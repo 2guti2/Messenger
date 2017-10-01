@@ -58,6 +58,10 @@ namespace Client
             {
                 PrintUsers(response.UserList());
             }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+            }
             connection.Close();
         }
 
@@ -100,6 +104,10 @@ namespace Client
             {
                 friends = response.UserList();
             }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+            }
             connection.Close();
             return friends;
         }
@@ -115,6 +123,10 @@ namespace Client
             if (response.HadSuccess())
             {
                 friends = response.UserWithFriendsCountList();
+            }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
             }
             connection.Close();
             return friends;
@@ -243,13 +255,13 @@ namespace Client
         private string GetClientIpFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (string)appSettings.GetValue("ClientIp", typeof(string));
+            return (string) appSettings.GetValue("ClientIp", typeof(string));
         }
 
         private int GetClientPortFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (int)appSettings.GetValue("ClientPort", typeof(int));
+            return (int) appSettings.GetValue("ClientPort", typeof(int));
         }
 
 
@@ -324,6 +336,10 @@ namespace Client
             {
                 StartChat(friends[input]);
             }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
+            }
         }
 
         private void PrintConversations(string friend)
@@ -338,6 +354,10 @@ namespace Client
             if (response.HadSuccess())
             {
                 response.Conversation(clientUsername).ForEach(Console.WriteLine);
+            }
+            else
+            {
+                Console.WriteLine(response.ErrorMessage());
             }
         }
 
@@ -384,6 +404,10 @@ namespace Client
                 {
                     messages = readMessageResponse.Messages();
                     messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
+                }
+                else
+                {
+                    Console.WriteLine(readMessageResponse.ErrorMessage());
                 }
 
                 if (messages.Count == 0)

@@ -25,7 +25,7 @@ namespace Business
 
         public Client GetLoggedClient(string token)
         {
-            return ConnectedClients.Find(session => session.Id.Equals(token)).Client;
+            return ConnectedClients.Find(session => session.Id.Equals(token))?.Client;
         }
 
         public bool IsClientConnected(Client client)
