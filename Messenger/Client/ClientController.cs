@@ -11,6 +11,8 @@ namespace Client
 {
     public class ClientController
     {
+        private const double WaitTimeAumentation = 1.5;
+        private const int InitialWaitTime = 100;
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
         private string clientUsername;
@@ -368,6 +370,7 @@ namespace Client
 
         private void PrintWhatTheyWrite(string counterpart)
         {
+            int waitTime = InitialWaitTime;
             while (true)
             {
                 Connection connection = clientProtocol.ConnectToServer();
@@ -376,10 +379,19 @@ namespace Client
 
                 var readMessageResponse = new Response(connection.ReadMessage());
 
+                var messages = new List<string>();
                 if (readMessageResponse.HadSuccess())
-                    readMessageResponse.Messages().ForEach(m => Console.WriteLine(counterpart + ": " + m));
+                {
+                    messages = readMessageResponse.Messages();
+                    messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
+                }
 
-                Thread.Sleep(500);
+                if (messages.Count == 0)
+                    waitTime = Convert.ToInt32(waitTime * WaitTimeAumentation);
+                else
+                    waitTime = InitialWaitTime;
+
+                Thread.Sleep(waitTime);
             }
         }
     }
