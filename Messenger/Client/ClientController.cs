@@ -365,6 +365,8 @@ namespace Client
 
             Console.WriteLine("Type the content of your message:");
             string message = Input.RequestString();
+            
+            Console.WriteLine("Puedes salir del chat escribiendo 'exit'.");
 
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.SendMessage, friends[input], message);
