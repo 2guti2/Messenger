@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -19,16 +20,38 @@ namespace Server
             var server = new ServerProtocol();
             int port = GetServerPortFromConfigFile();
             string ip = GetServerIpFromConfigFile();
-            server.Start(ip, port);
+            try
+            {
+                server.Start(ip, port);
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("There seems to be something else using the same port...");
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
             var businessController = new BusinessController(new Store());
 
             var thread = new Thread(() =>
             {
                 var router = new Router(new ServerController(businessController));
                 while (true)
-                    server.AcceptConnection(router.Handle);
+                {
+                    try
+                    {
+                        server.AcceptConnection(router.Handle);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("FAILED TO ACCEPT CONNECTION.");
+                    }
+                }
             });
             thread.Start();
+
+            var msmqServer = new MessageQueueServer(ip);
+            var msmqServerThread = new Thread(() => msmqServer.Start());
+            msmqServerThread.Start();
 
             var options = new List<string>(new[]
             {
