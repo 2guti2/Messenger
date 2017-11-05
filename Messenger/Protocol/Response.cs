@@ -1,7 +1,5 @@
 ﻿using Business;
 using System.Collections.Generic;
-using System.Collections.Generic;
-using Business;
 
 namespace Protocol
 {

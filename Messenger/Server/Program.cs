@@ -10,6 +10,7 @@ using Business;
 using Persistence;
 using Protocol;
 using UI;
+using WcfServices;
 
 namespace Server
 {
@@ -17,6 +18,11 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            Host host = new Host();
+            host.Start();
+
+            Console.Read();
+
             var server = new ServerProtocol();
             int port = GetServerPortFromConfigFile();
             string ip = GetServerIpFromConfigFile();
