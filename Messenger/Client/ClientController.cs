@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Protocol;
 using UI;
 using System.Configuration;
+using System.IO;
+using System.Security;
 using Business;
 using System.Threading;
 
@@ -13,6 +15,7 @@ namespace Client
     {
         private const double WaitTimeAumentation = 1.5;
         private const int InitialWaitTime = 100;
+        private const string FilesDirectory = "files";
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
         private string clientUsername;
@@ -202,6 +205,7 @@ namespace Client
                     "Send Friendship Request",
                     "Respond to Friendship Request",
                     "Chat",
+                    "Upload File",
                     "Exit"
                 });
         }
@@ -336,6 +340,9 @@ namespace Client
                 case 5:
                     Chat();
                     break;
+                case 6:
+                    UploadFile();
+                    break;
                 default:
                     DisconnectFromServer();
                     Environment.Exit(0);
@@ -349,7 +356,7 @@ namespace Client
             List<string> friends = FriendsList();
             if (friends.Count == 0)
             {
-                Console.WriteLine("You have no friends ¯\\_(ツ)_/¯");
+                Console.WriteLine(@"You have no friends ¯\_(ツ)_/¯");
                 return;
             }
             int input = Menus.MapInputWithMenuItemsList(friends);
@@ -378,6 +385,38 @@ namespace Client
             {
                 Console.WriteLine(response.ErrorMessage());
             }
+        }
+        
+        private void UploadFile()
+        {
+            try
+            {
+                string selectedFile = SelectFileToUpload();
+                var reader = new FileReader($@"{FilesDirectory}/{selectedFile}");
+                Connection conn = clientProtocol.ConnectToServer();
+                conn.SendMessage(BuildRequest(Command.UploadFile, selectedFile));
+                foreach (byte[] chunk in reader.FileChunks())
+                {
+                    conn.SendRawData(chunk);
+                }
+                var response = new Response(conn.ReadMessage());
+                Console.WriteLine(response.Message);
+            }
+            catch (IOException)
+            {
+                Console.WriteLine("There was a problem opening the file, pelase try again.");
+            }
+            catch (SecurityException)
+            {
+                Console.WriteLine("You may not have permission to open that file, try again as administrator.");
+            }
+        }
+
+        private string SelectFileToUpload()
+        {
+            List<string> files = FileLister.ListFiles(FilesDirectory);
+            int selectedOption = Menus.MapInputWithMenuItemsList(files);
+            return files[selectedOption - 1];
         }
 
         private void PrintConversations(string friend)

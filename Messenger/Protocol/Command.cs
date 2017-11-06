@@ -14,5 +14,6 @@
         SendMessage,
         ReadMessage,
         GetConversation,
+        UploadFile
     }
 }

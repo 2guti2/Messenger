@@ -53,6 +53,9 @@ namespace Server
                         break;
                     case Command.GetConversation:
                         serverController.GetConversation(conn, request);
+                        break;                    
+                    case Command.UploadFile:
+                        serverController.UplaodFile(conn, request);
                         break;
                     case Command.DisconnectUser:
                         serverController.DisconnectUser(conn, request);

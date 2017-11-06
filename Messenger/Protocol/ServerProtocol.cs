@@ -24,13 +24,13 @@ namespace Protocol
             Socket.Listen(100);
         }
 
-        public delegate void ConnectionDelegate(Connection connection);
+        public delegate void SerializedConnectionDelegate(Connection connection);
 
-        public void AcceptConnection(ConnectionDelegate onConnection)
+        public void AcceptConnection(SerializedConnectionDelegate onConnection)
         {
             if (onConnection == null) throw new ArgumentNullException(nameof(onConnection));
 
-            var clientSocket = Socket.Accept();
+            Socket clientSocket = Socket.Accept();
             var thread = new Thread(() => onConnection(new Connection(clientSocket)));
             thread.Start();
         }

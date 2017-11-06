@@ -17,31 +17,55 @@ namespace Protocol
         public void SendMessage(object[] message)
         {
             string serializedMessage = Serializer.Serialize(message);
-            var data = Encoding.ASCII.GetBytes(serializedMessage);
+            byte[] data = Encoding.ASCII.GetBytes(serializedMessage);
             SendDataLength(data);
             SendData(data, data.Length);
         }
 
         public string[][][] ReadMessage()
         {
-            var dataLength = ReadDataLength();
-            var dataReceived = ReadData(dataLength);
-            var message = Encoding.UTF8.GetString(dataReceived);
+            int dataLength = ReadDataLength();
+            byte[] dataReceived = ReadData(dataLength);
+            string message = Encoding.UTF8.GetString(dataReceived);
             return Serializer.DeSerialize(message);
         }
+        
+        public void SendRawData(byte[] data)
+        {
+            SendDataLength(data);
+            SendData(data, data.Length);
+        }
 
+        public byte[] ReadRawData()
+        {
+            int dataLength = ReadDataLength();
+            return ReadData(dataLength);
+        }
+        
         public void Close()
         {
             Socket.Close();
         }
 
-        private int ReadDataLength()
+        public bool IsAlive()
         {
-            var dataLengthAsBytes = ReadData(LengthByteSize);
+            try
+            {
+                return !(Socket.Poll(1, SelectMode.SelectRead) && Socket.Available == 0);
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
+        }
+
+        protected int ReadDataLength()
+        {
+            byte[] dataLengthAsBytes = ReadData(LengthByteSize);
             return BitConverter.ToInt32(dataLengthAsBytes, 0);
         }
 
-        private byte[] ReadData(int dataLength)
+        protected byte[] ReadData(int dataLength)
         {
             var dataReceived = new byte[dataLength];
             var received = 0;
@@ -53,7 +77,7 @@ namespace Protocol
             return dataReceived;
         }
 
-        private void SendDataLength(byte[] data)
+        protected void SendDataLength(byte[] data)
         {
             var length = data.Length;
             var dataLength = BitConverter.GetBytes(length);
@@ -61,7 +85,7 @@ namespace Protocol
             SendData(dataLength, LengthByteSize);
         }
 
-        private void SendData(byte[] data, int dataLength)
+        protected void SendData(byte[] data, int dataLength)
         {
             var sent = 0;
             while (sent < dataLength)

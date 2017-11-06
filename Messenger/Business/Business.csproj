@@ -49,6 +49,9 @@
     <Compile Include="Exceptions\ClientNotConnectedException.cs" />
     <Compile Include="Exceptions\RecordNotFoundException.cs" />
     <Compile Include="Exceptions\RequestAlredySentException.cs" />
+    <Compile Include="FileLister.cs" />
+    <Compile Include="FileReader.cs" />
+    <Compile Include="FileWriter.cs" />
     <Compile Include="FriendshipRequest.cs" />
     <Compile Include="IStore.cs" />
     <Compile Include="Message.cs" />

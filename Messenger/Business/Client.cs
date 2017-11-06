@@ -7,8 +7,11 @@ namespace Business
 {
     public class Client
     {
+        private static int LastId = 0;
+
         public Client(string username, string password)
         {
+            Id = ++LastId;
             Username = username;
             Password = password;
             Friends = new List<Client>();
@@ -17,6 +20,7 @@ namespace Business
             Sessions = new List<Session>();
         }
 
+        public int Id { get; }
         public string Username { get; set; }
         public string Password { get; set; }
         public List<Client> Friends { get; set; }
