@@ -9,6 +9,7 @@ namespace Server
 {
     public class ServerController
     {
+        private const string UploadFolder = "uploads";
         private readonly BusinessController businessController;
 
         public ServerController(BusinessController businessController)
@@ -211,14 +212,6 @@ namespace Server
             conn.SendMessage(response);
         }
 
-        private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
-        {
-            var responseList = new List<object>(payload);
-            responseList.Insert(0, responseCode.GetHashCode());
-
-            return responseList.ToArray();
-        }
-
         public void SendMessage(Connection conn, Request request)
         {
             try
@@ -265,13 +258,48 @@ namespace Server
             }
         }
 
-        public void UplaodFile(Connection conn, Request req)
+        public void UploadFile(Connection conn, Request req)
         {
             try
             {
                 string fileName = req.FileName();
-                FileUploader.UploadFile(conn, CurrentClient(req), fileName);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok));
+                string clientDirectory = ClientDirectory(CurrentClient(req));
+                FileDownloader.DownloadFile(conn, clientDirectory, fileName);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok, "File uploaded succesfully"));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+        
+        public void ListClientFiles(Connection conn, Request req)
+        {
+            try
+            {
+                Client client = CurrentClient(req);
+                List<string> files = FileLister.ListFiles($@"{UploadFolder}\{client.Id}");
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, files.ToArray()));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+        
+        public void DownloadFile(Connection conn, Request req)
+        {
+            try
+            {
+                Client client = CurrentClient(req);
+                string clientDirectory = ClientDirectory(client);
+                List<string> files = FileLister.ListFiles(clientDirectory);
+                string selectedFile = files[req.SelectedFileIndex()];
+                string fullFilePath = $@"{clientDirectory}\{selectedFile}";
+                conn.SendMessage(BuildResponse(ResponseCode.Ok));
+                
+                Protocol.FileUploader.UploadFile(conn, fullFilePath);
             }
             catch (ClientNotConnectedException e)
             {
@@ -282,6 +310,19 @@ namespace Server
         private Client CurrentClient(Request req)
         {
             return businessController.GetLoggedClient(req.UserToken());
+        }
+        
+        private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
+        {
+            var responseList = new List<object>(payload);
+            responseList.Insert(0, responseCode.GetHashCode());
+
+            return responseList.ToArray();
+        }
+
+        private string ClientDirectory(Client client)
+        {
+            return $@"{UploadFolder}\{client.Id}";
         }
     }
 }

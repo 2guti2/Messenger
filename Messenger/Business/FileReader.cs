@@ -11,7 +11,7 @@ namespace Business
 
         public FileReader(string path)
         {
-            stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            stream = File.OpenRead(path);
         }
 
         public IEnumerable<byte[]> FileChunks()

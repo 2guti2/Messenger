@@ -25,6 +25,7 @@ namespace Client
             catch (Exception e)
             {
                 Console.WriteLine("There was a problem with something you did, the app will exit");
+                Console.ReadKey();
                 clientController.DisconnectFromServer();
                 Environment.Exit(1);
             }
