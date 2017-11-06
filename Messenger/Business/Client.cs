@@ -33,7 +33,7 @@ namespace Business
 
         public override bool Equals(object obj)
         {
-            var toCompare = (Client) obj;
+            var toCompare = (Client)obj;
             return toCompare != null && Username.Equals(toCompare.Username);
         }
 

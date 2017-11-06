@@ -6,7 +6,7 @@ namespace Business
 {
     public class FileReader
     {
-        public const int MaxChunkSize = 32_000; // 32kb
+        public const int MaxChunkSize = 32000; // 32kb
         private readonly FileStream stream;
 
         public FileReader(string path)

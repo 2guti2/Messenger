@@ -1,5 +1,8 @@
-﻿namespace Protocol
+﻿using System;
+
+namespace Business
 {
+    [Serializable]
     public enum Command
     {
         FriendshipRequest,

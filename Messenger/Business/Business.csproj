@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="BusinessController.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="Command.cs" />
     <Compile Include="Exceptions\BusinessException.cs" />
     <Compile Include="Exceptions\CantBefriendSelfException.cs" />
     <Compile Include="Exceptions\ClientAlreadyBefriendedException.cs" />
@@ -54,8 +55,10 @@
     <Compile Include="FileWriter.cs" />
     <Compile Include="FriendshipRequest.cs" />
     <Compile Include="IStore.cs" />
+    <Compile Include="LogEntry.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueueUtillities.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Session.cs" />
   </ItemGroup>

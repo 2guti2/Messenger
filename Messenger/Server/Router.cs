@@ -1,4 +1,5 @@
 ﻿using System;
+using Business;
 using Protocol;
 
 namespace Server
@@ -73,7 +74,14 @@ namespace Server
             }
             finally
             {
-                conn.Close();
+                try
+                {
+                    conn.Close();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Failed to close connection.");
+                }
             }
         }
     }

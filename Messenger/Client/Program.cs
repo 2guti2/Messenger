@@ -1,13 +1,6 @@
-﻿using Protocol;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
+﻿using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Threading;
-using Business;
-using UI;
 
 namespace Client
 {
@@ -20,7 +13,7 @@ namespace Client
             try
             {
                 handler = new ConsoleEventDelegate(ConsoleEventCallback);
-//                SetConsoleCtrlHandler(handler, true);
+                SetConsoleCtrlHandler(handler, true);
                 clientController.LoopMenu();
             }
             catch (SocketException e)

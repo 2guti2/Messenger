@@ -5,9 +5,9 @@ using UI;
 using System.Configuration;
 using System.IO;
 using System.Security;
+using System.Net.Sockets;
 using Business;
 using System.Threading;
-
 
 namespace Client
 {
@@ -19,12 +19,14 @@ namespace Client
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
         private string clientUsername;
+        private string serverIp;
+        private Logger logger;
 
         public ClientController()
         {
             clientToken = "";
             clientUsername = null;
-            string serverIp = GetServerIpFromConfigFile();
+            serverIp = GetServerIpFromConfigFile();
             int serverPort = GetServerPortFromConfigFile();
             string clientIp = GetClientIpFromConfigFile();
             int clientPort = GetClientPortFromConfigFile();
@@ -37,6 +39,7 @@ namespace Client
             connection.SendMessage(BuildRequest(Command.DisconnectUser));
             var response = new Response(connection.ReadMessage());
             Console.WriteLine(response.HadSuccess() ? "Disconnected" : response.ErrorMessage());
+            logger.LogAction(Command.DisconnectUser);
         }
 
         internal void LoopMenu()
@@ -65,6 +68,8 @@ namespace Client
             object[] request = BuildRequest(Command.ListOfConnectedUsers);
             connection.SendMessage(request);
 
+            logger.LogAction(Command.ListOfConnectedUsers);
+
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
@@ -89,6 +94,8 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListOfAllClients);
             connection.SendMessage(request);
+
+            logger.LogAction(Command.ListOfAllClients);
 
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
@@ -116,6 +123,9 @@ namespace Client
 
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(request);
+
+            logger.LogAction(Command.FriendshipRequest);
+
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
@@ -140,6 +150,8 @@ namespace Client
             object[] request = BuildRequest(Command.ListMyFriends);
             connection.SendMessage(request);
 
+            logger.LogAction(Command.ListMyFriends);
+
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
@@ -159,6 +171,8 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListMyFriends);
             connection.SendMessage(request);
+
+            logger.LogAction(Command.ListMyFriends);
 
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
@@ -214,6 +228,9 @@ namespace Client
         {
             Connection conn = clientProtocol.ConnectToServer();
             conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
+
+            logger.LogAction(Command.ConfirmFriendshipRequest);
+
             var response = new Response(conn.ReadMessage());
             if (response.HadSuccess())
             {
@@ -230,6 +247,9 @@ namespace Client
         {
             Connection conn = clientProtocol.ConnectToServer();
             conn.SendMessage(BuildRequest(Command.RejectFriendshipRequest, requestId));
+
+            logger.LogAction(Command.RejectFriendshipRequest);
+
             var response = new Response(conn.ReadMessage());
             Console.WriteLine(response.HadSuccess() ? "Friendship request removed" : response.ErrorMessage());
             conn.Close();
@@ -239,6 +259,9 @@ namespace Client
         {
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(BuildRequest(Command.GetFriendshipRequests));
+
+            logger.LogAction(Command.GetFriendshipRequests);
+
             var response = new Response(connection.ReadMessage());
 
             connection.Close();
@@ -266,6 +289,8 @@ namespace Client
                 {
                     clientToken = response.GetClientToken();
                     clientUsername = client.Username;
+                    logger = new Logger(clientUsername, serverIp);
+                    logger.LogAction(Command.Login);
                     Console.WriteLine(ClientUI.LoginSuccessful());
                 }
                 else
@@ -373,6 +398,7 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.SendMessage, friends[input], message);
             connection.SendMessage(request);
+            logger.LogAction(Command.SendMessage);
 
             var response = new Response(connection.ReadMessage());
             connection.Close();
@@ -425,6 +451,8 @@ namespace Client
             object[] request = BuildRequest(Command.GetConversation, friend);
             connection.SendMessage(request);
 
+            logger.LogAction(Command.GetConversation);
+
             var response = new Response(connection.ReadMessage());
             connection.Close();
 
@@ -457,42 +485,63 @@ namespace Client
 
         private void SendMessage(string counterpartUsername, string myAnswer)
         {
-            Connection connection = clientProtocol.ConnectToServer();
-            connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
-            var sendMessageResponse = new Response(connection.ReadMessage());
-            if (!sendMessageResponse.HadSuccess())
-                Console.WriteLine(sendMessageResponse.ErrorMessage());
-            connection.Close();
+            try
+            {
+                Connection connection = clientProtocol.ConnectToServer();
+                connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
+
+                logger.LogAction(Command.SendMessage);
+
+                var sendMessageResponse = new Response(connection.ReadMessage());
+                if (!sendMessageResponse.HadSuccess())
+                    Console.WriteLine(sendMessageResponse.ErrorMessage());
+                connection.Close();
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("Server is unreachable, app will exit.");
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
         }
 
         private void PrintWhatTheyWrite(string counterpart)
         {
-            int waitTime = InitialWaitTime;
-            while (true)
+            try
             {
-                Connection connection = clientProtocol.ConnectToServer();
-                object[] readMessage = BuildRequest(Command.ReadMessage, counterpart);
-                connection.SendMessage(readMessage);
-
-                var readMessageResponse = new Response(connection.ReadMessage());
-
-                var messages = new List<string>();
-                if (readMessageResponse.HadSuccess())
+                int waitTime = InitialWaitTime;
+                while (true)
                 {
-                    messages = readMessageResponse.Messages();
-                    messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
-                }
-                else
-                {
-                    Console.WriteLine(readMessageResponse.ErrorMessage());
-                }
+                    Connection connection = clientProtocol.ConnectToServer();
+                    object[] readMessage = BuildRequest(Command.ReadMessage, counterpart);
+                    connection.SendMessage(readMessage);
 
-                if (messages.Count == 0)
-                    waitTime = Convert.ToInt32(waitTime * WaitTimeAumentation);
-                else
-                    waitTime = InitialWaitTime;
+                    var readMessageResponse = new Response(connection.ReadMessage());
+                    var messages = new List<string>();
+                    if (readMessageResponse.HadSuccess())
+                    {
+                        messages = readMessageResponse.Messages();
+                        if(messages.Count > 0)
+                            logger.LogAction(Command.ReadMessage);
+                        messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
+                    }
+                    else
+                    {
+                        Console.WriteLine(readMessageResponse.ErrorMessage());
+                    }
 
-                Thread.Sleep(waitTime);
+                    if (messages.Count == 0)
+                        waitTime = Convert.ToInt32(waitTime * WaitTimeAumentation);
+                    else
+                        waitTime = InitialWaitTime;
+                    Thread.Sleep(waitTime);
+                }
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("Server is unreachable, app will exit.");
+                Console.ReadLine();
+                Environment.Exit(0);
             }
         }
     }
