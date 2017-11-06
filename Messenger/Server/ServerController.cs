@@ -175,7 +175,7 @@ namespace Server
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
         }
-        
+
         public void ListAllUsers(Connection conn, Request request)
         {
             try
@@ -217,11 +217,6 @@ namespace Server
             responseList.Insert(0, responseCode.GetHashCode());
 
             return responseList.ToArray();
-        }
-
-        private Client CurrentClient(Request req)
-        {
-            return businessController.GetLoggedClient(req.UserToken());
         }
 
         public void SendMessage(Connection conn, Request request)
@@ -268,6 +263,25 @@ namespace Server
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
+        }
+
+        public void UplaodFile(Connection conn, Request req)
+        {
+            try
+            {
+                string fileName = req.FileName();
+                FileUploader.UploadFile(conn, CurrentClient(req), fileName);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, "File uploaded succesfully"));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        private Client CurrentClient(Request req)
+        {
+            return businessController.GetLoggedClient(req.UserToken());
         }
     }
 }

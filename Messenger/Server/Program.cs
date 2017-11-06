@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -10,7 +12,6 @@ using Business;
 using Persistence;
 using Protocol;
 using UI;
-using WcfServices;
 
 namespace Server
 {
@@ -18,10 +19,6 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            Host host = new Host();
-            host.Start();
-
-            Console.Read();
 
             var server = new ServerProtocol();
             int port = GetServerPortFromConfigFile();

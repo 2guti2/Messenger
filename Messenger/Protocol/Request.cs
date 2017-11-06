@@ -14,6 +14,8 @@ namespace Protocol
         public Command Command => (Command) int.Parse(requestObject[0][0][0]);
 
         public string Message => requestObject[2][0][0];
+        
+        public string FileName() => requestObject[1][0][0];
 
         public string Recipient() => requestObject[1][0][0];
 

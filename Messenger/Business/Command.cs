@@ -17,5 +17,6 @@ namespace Business
         SendMessage,
         ReadMessage,
         GetConversation,
+        UploadFile
     }
 }

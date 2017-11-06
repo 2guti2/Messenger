@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileUploader.cs" />
     <Compile Include="MessageQueueServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,14 +70,6 @@
     <ProjectReference Include="..\UI\UI.csproj">
       <Project>{6458c1c9-1f78-49d4-80b4-16627a0f0669}</Project>
       <Name>UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WcfHost\WcfHost.csproj">
-      <Project>{e0128242-ff8e-4c9c-b540-fc85c3c2d5cb}</Project>
-      <Name>WcfHost</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WcfServices\WcfServices.csproj">
-      <Project>{b80f6b3e-e04b-4a97-9aab-6ec1c4fc51f9}</Project>
-      <Name>WcfServices</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
