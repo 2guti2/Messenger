@@ -14,7 +14,12 @@ namespace Business
         public void WriteChunk(byte[] chunk)
         {
             stream.Write(chunk, 0, chunk.Length);
+        }
+
+        public void CloseFile()
+        {
             stream.Flush();
+            stream.Close();
         }
     }
 }

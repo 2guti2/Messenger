@@ -76,6 +76,15 @@ namespace Protocol
 
             return receivedRequests;
         }
+        
+        public List<string> FilesList()
+        {
+            var list = new List<string>();
+            for (var i = 1; i < responseObject.Length; i++)
+                list.Add(responseObject[i][0][0]);
+
+            return list;
+        }
 
         private string ResponseCode => responseObject[0][0][0];
 
@@ -83,5 +92,6 @@ namespace Protocol
         {
             return ResponseCode != null && responseCode.GetHashCode() == int.Parse(ResponseCode);
         }
+
     }
 }

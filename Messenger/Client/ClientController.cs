@@ -4,8 +4,10 @@ using Protocol;
 using UI;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Security;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using Business;
 using System.Threading;
 
@@ -16,6 +18,7 @@ namespace Client
         private const double WaitTimeAumentation = 1.5;
         private const int InitialWaitTime = 100;
         private const string FilesDirectory = "files";
+        private const string DownloadsDirectory = "downloads";
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
         private string clientUsername;
@@ -220,6 +223,7 @@ namespace Client
                     "Respond to Friendship Request",
                     "Chat",
                     "Upload File",
+                    "Download File",
                     "Exit"
                 });
         }
@@ -368,6 +372,9 @@ namespace Client
                 case 6:
                     UploadFile();
                     break;
+                case 7:
+                    DownloadFile();
+                    break;
                 default:
                     DisconnectFromServer();
                     Environment.Exit(0);
@@ -417,16 +424,21 @@ namespace Client
         {
             try
             {
-                string selectedFile = SelectFileToUpload();
-                var reader = new FileReader($@"{FilesDirectory}/{selectedFile}");
                 Connection conn = clientProtocol.ConnectToServer();
+                string selectedFile = SelectFileToUpload();
                 conn.SendMessage(BuildRequest(Command.UploadFile, selectedFile));
-                foreach (byte[] chunk in reader.FileChunks())
-                {
-                    conn.SendRawData(chunk);
-                }
                 var response = new Response(conn.ReadMessage());
-                Console.WriteLine(response.Message);
+                if (response.HadSuccess())
+                {
+                    Protocol.FileUploader.UploadFile(conn, $@"{FilesDirectory}/{selectedFile}");
+                    response = new Response(conn.ReadMessage());
+                    Console.WriteLine(response.Message);
+                }
+                else
+                {
+                    Console.WriteLine(response.Message);
+                }
+
             }
             catch (IOException)
             {
@@ -437,7 +449,60 @@ namespace Client
                 Console.WriteLine("You may not have permission to open that file, try again as administrator.");
             }
         }
+        
+        private void DownloadFile()
+        {
+            Connection conn = clientProtocol.ConnectToServer();
+            conn.SendMessage(BuildRequest(Command.ListClientFiles));
+            var response = new Response(conn.ReadMessage());
+            if (response.HadSuccess())
+            {
+                List<string> clientFiles = response.FilesList();
+                if (clientFiles.Count > 0)
+                {
+                    DownloadFileFromServer(RemoveTimestampFromFileNames(clientFiles));
+                }
+                else
+                {
+                    Console.WriteLine("You have no files uploaded");
+                }
+            }
+            else
+            {
+                Console.WriteLine(response.Message);
+            }
+        }
 
+        private void DownloadFileFromServer(List<string> clientFiles)
+        {
+            Connection conn = clientProtocol.ConnectToServer();
+            int selectedFileIndex = SelectFileToDownload(clientFiles);
+            conn.SendMessage(BuildRequest(Command.DownloadFile, selectedFileIndex));
+            var response = new Response(conn.ReadMessage());
+            if (response.HadSuccess())
+            {
+                string selectedFile = clientFiles[selectedFileIndex];
+                string downloadedFile = FileDownloader.DownloadFile(conn, DownloadsDirectory, selectedFile);
+                Console.WriteLine($@"File downloaded into {DownloadsDirectory}\{downloadedFile}");
+            }
+            else
+            {
+                Console.WriteLine(response.Message);
+            }
+        }
+
+        private List<string> RemoveTimestampFromFileNames(List<string> files)
+        {
+            var regex = new Regex(@"^\d+_");
+            return files.Select(file => regex.Replace(file, "")).ToList();
+        }
+        
+        private int SelectFileToDownload(List<string> files)
+        {
+            int selectedOption = Menus.MapInputWithMenuItemsList(files);
+            return selectedOption - 1;
+        }
+        
         private string SelectFileToUpload()
         {
             List<string> files = FileLister.ListFiles(FilesDirectory);

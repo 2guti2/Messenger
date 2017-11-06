@@ -17,6 +17,8 @@ namespace Business
         SendMessage,
         ReadMessage,
         GetConversation,
-        UploadFile
+        UploadFile,
+        ListClientFiles,
+        DownloadFile
     }
 }
