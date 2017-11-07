@@ -18,11 +18,6 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            Host host = new Host();
-            host.Start();
-
-            Console.Read();
-
             var server = new ServerProtocol();
             int port = GetServerPortFromConfigFile();
             string ip = GetServerIpFromConfigFile();
@@ -36,28 +31,34 @@ namespace Server
                 Console.ReadLine();
                 Environment.Exit(0);
             }
-            var businessController = new BusinessController(new Store());
+
+            CoreController.Build(new Store());
+            var businessController = CoreController.BusinessControllerInstance();
 
             var thread = new Thread(() =>
-            {
-                var router = new Router(new ServerController(businessController));
-                while (true)
                 {
-                    try
+                    var router = new Router(new ServerController(businessController));
+                    while (true)
                     {
-                        server.AcceptConnection(router.Handle);
+                        try
+                        {
+                            server.AcceptConnection(router.Handle);
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("FAILED TO ACCEPT CONNECTION.");
+                        }
                     }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("FAILED TO ACCEPT CONNECTION.");
-                    }
-                }
-            });
+                });
             thread.Start();
 
             var msmqServer = new MessageQueueServer(ip);
             var msmqServerThread = new Thread(() => msmqServer.Start());
             msmqServerThread.Start();
+
+            WCFHost wcfHostService = new WCFHost();
+            var wcfHostServiceThread = new Thread(() => wcfHostService.Start());
+            wcfHostServiceThread.Start();
 
             var options = new List<string>(new[]
             {
@@ -75,6 +76,10 @@ namespace Server
                     break;
             }
             thread.Join();
+            msmqServer.Stop();
+            msmqServerThread.Join();
+            wcfHostService.Stop();
+            wcfHostServiceThread.Join();
         }
 
         private static void MapOptionToAction(int option, BusinessController controller)
@@ -90,7 +95,7 @@ namespace Server
                 controller.GetLoggedClients().ForEach(client =>
                 {
                     if (client.ConnectedSince == null) return;
-                    TimeSpan timeConnected = DateTime.Now.Subtract((DateTime) client.ConnectedSince);
+                    TimeSpan timeConnected = DateTime.Now.Subtract((DateTime)client.ConnectedSince);
                     string timeConnectedFormatted = timeConnected.ToString(@"hh\:mm\:ss");
                     Console.WriteLine(
                         $"- {client.Username} \tFriends: {client.FriendsCount} \tConnected: {client.ConnectionsCount} times \tConnected for: {timeConnectedFormatted}");
@@ -101,13 +106,13 @@ namespace Server
         private static string GetServerIpFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (string) appSettings.GetValue("ServerIp", typeof(string));
+            return (string)appSettings.GetValue("ServerIp", typeof(string));
         }
 
         private static int GetServerPortFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (int) appSettings.GetValue("ServerPort", typeof(int));
+            return (int)appSettings.GetValue("ServerPort", typeof(int));
         }
     }
 }

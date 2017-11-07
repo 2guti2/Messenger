@@ -10,8 +10,11 @@ namespace Server
 {
     public class MessageQueueServer
     {
+        private bool isServerRunning;
+
         public MessageQueueServer(string serverIp)
         {
+            isServerRunning = true;
             QueuePath = QueueUtillities.Path(serverIp);
         }
 
@@ -24,7 +27,7 @@ namespace Server
                 Formatter = new XmlMessageFormatter(new Type[] { typeof(LogEntry) })
             };
 
-            while (true)
+            while (isServerRunning)
             {
                 LogEntry entry = null;
 
@@ -38,6 +41,11 @@ namespace Server
                 if(IsValidEntry(entry))
                     QueueUtillities.SaveEntry(entry);
             }
+        }
+
+        public void Stop()
+        {
+            isServerRunning = false;
         }
 
         bool IsValidEntry(LogEntry entry)

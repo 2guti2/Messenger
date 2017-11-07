@@ -34,6 +34,45 @@ namespace Business
             }
         }
 
+        public bool DeleteClient(Client client)
+        {
+            lock (loginLocker)
+            {
+                if (!Store.ClientExists(client))
+                    return false;
+
+                Store.DeleteClient(client);
+            }
+            return true;
+        }
+
+        public bool UpdateClient(Client existingClient, Client newClient)
+        {
+            lock (loginLocker)
+            {
+                if (!Store.ClientExists(existingClient))
+                    return false;
+
+                Client storeClient = Store.GetClient(existingClient.Username);
+
+                storeClient.Username = newClient.Username;
+                storeClient.Password = newClient.Password;
+            }
+            return true;
+        }
+
+        public bool CreateClient(Client client)
+        {
+            lock (loginLocker)
+            {
+                if (!Store.ClientExists(client))
+                    Store.AddClient(client);
+                else
+                    return false;
+            }
+            return true;
+        }
+
         public Client FriendshipRequest(Client sender, string receiverUsername)
         {
             lock (friendshipLocker)

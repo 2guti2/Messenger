@@ -89,5 +89,10 @@ namespace Persistence
         {
             return Clients;
         }
+
+        public void DeleteClient(Client client)
+        {
+            Clients.Remove(client);
+        }
     }
 }

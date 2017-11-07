@@ -10,24 +10,42 @@ namespace WcfServices
 {
     public class ClientCRUDService : IClientCRUDService
     {
-        private BusinessController BusinessController { get; set; }
+        private readonly BusinessController businessController;
 
-        public string GetData(int value)
+        public ClientCRUDService()
         {
-            return string.Format("You entered: {0}", value);
+            businessController = CoreController.BusinessControllerInstance();
         }
 
-        public CompositeType GetDataUsingDataContract(CompositeType composite)
+        public bool CreateClient(ClientDto clientDto)
         {
-            if (composite == null)
-            {
-                throw new ArgumentNullException("composite");
-            }
-            if (composite.BoolValue)
-            {
-                composite.StringValue += "Suffix";
-            }
-            return composite;
+            Client client = Adapter.ClientDtoToClient(clientDto);
+
+            return businessController.CreateClient(client);
+        }
+
+        public bool DeleteClient(ClientDto clientDto)
+        {
+            Client client = Adapter.ClientDtoToClient(clientDto);
+
+            return businessController.DeleteClient(client);
+        }
+
+        public List<ClientDto> GetClients()
+        {
+            List<ClientDto> clientDtos = new List<ClientDto>();
+
+            businessController.GetClients().ForEach(c => clientDtos.Add(Adapter.ClientToClientDto(c)));
+
+            return clientDtos;
+        }
+
+        public bool UpdateClient(ClientDto existingClientDto, ClientDto newClientDto)
+        {
+            Client existingClient = Adapter.ClientDtoToClient(existingClientDto);
+            Client newClient = Adapter.ClientDtoToClient(newClientDto);
+
+            return businessController.UpdateClient(existingClient, newClient);
         }
     }
 }

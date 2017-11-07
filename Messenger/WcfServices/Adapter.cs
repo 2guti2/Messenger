@@ -4,9 +4,18 @@ namespace WcfServices
 {
     public class Adapter
     {
-        public static bool Equals(ClientDto clientDto, Client client)
+        public static Client ClientDtoToClient(ClientDto clientDto)
         {
-            return clientDto.Username.Equals(client.Username) && clientDto.Password.Equals(client.Password);
+            return new Client(clientDto.Username, clientDto.Password);
+        }
+
+        public static ClientDto ClientToClientDto(Client client)
+        {
+            return new ClientDto()
+            {
+                Username = client.Username,
+                Password = client.Password
+            };
         }
     }
 }

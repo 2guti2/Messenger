@@ -19,6 +19,7 @@ namespace Client
         private string clientUsername;
         private string serverIp;
         private Logger logger;
+        private ClientCRUDServiceClient clientCrudServiceClient;
 
         public ClientController()
         {
@@ -217,6 +218,7 @@ namespace Client
                     "Send Friendship Request",
                     "Respond to Friendship Request",
                     "Chat",
+                    "CRUD Users",
                     "Exit"
                 });
         }
@@ -287,6 +289,8 @@ namespace Client
                     clientToken = response.GetClientToken();
                     clientUsername = client.Username;
                     logger = new Logger(clientUsername, serverIp);
+
+                    clientCrudServiceClient = new ClientCRUDServiceClient(logger);
                     logger.LogAction(Command.Login);
                     Console.WriteLine(ClientUI.LoginSuccessful());
                 }
@@ -361,6 +365,9 @@ namespace Client
                     break;
                 case 5:
                     Chat();
+                    break;
+                case 6: 
+                    clientCrudServiceClient.Menu();
                     break;
                 default:
                     DisconnectFromServer();
