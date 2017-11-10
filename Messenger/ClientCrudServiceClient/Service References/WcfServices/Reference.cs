@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Client.WcfServices {
+namespace ClientCrudServiceClient.WcfServices {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -41,12 +41,12 @@ namespace Client.WcfServices {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IClientCRUDServiceChannel : Client.WcfServices.IClientCRUDService, System.ServiceModel.IClientChannel {
+    public interface IClientCRUDServiceChannel : ClientCrudServiceClient.WcfServices.IClientCRUDService, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class ClientCRUDServiceClient : System.ServiceModel.ClientBase<Client.WcfServices.IClientCRUDService>, Client.WcfServices.IClientCRUDService {
+    public partial class ClientCRUDServiceClient : System.ServiceModel.ClientBase<ClientCrudServiceClient.WcfServices.IClientCRUDService>, ClientCrudServiceClient.WcfServices.IClientCRUDService {
         
         public ClientCRUDServiceClient() {
         }

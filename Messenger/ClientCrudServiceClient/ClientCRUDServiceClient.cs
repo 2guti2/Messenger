@@ -1,27 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Business;
 using UI;
+using Business;
 
-namespace Client
+namespace ClientCrudServiceClient
 {
     public class ClientCRUDServiceClient
     {
         private const string UsernameTakenErrorMessage = "\nUsername taken";
 
-        private Logger logger;
         private WcfServices.ClientCRUDServiceClient clientCrudServiceClient;
         private List<string> menuOptions = new List<string>()
         {
             "Create", "Update", "Delete", "Exit"
         };
 
-        public ClientCRUDServiceClient(Logger logger)
+        public ClientCRUDServiceClient()
         {
-            this.logger = logger;
             clientCrudServiceClient = new WcfServices.ClientCRUDServiceClient();
         }
 
@@ -45,6 +41,7 @@ namespace Client
                     DeleteClient();
                     break;
                 default:
+                    Environment.Exit(0);
                     return;
             }
         }
@@ -54,8 +51,6 @@ namespace Client
             ClientDto clientToDelete = AskExistingClientInfo();
 
             clientCrudServiceClient.DeleteClient(clientToDelete);
-
-            logger.LogAction(Command.DeleteUser);
         }
 
         private void UpdateClient()
@@ -65,8 +60,6 @@ namespace Client
             ClientDto editedClient = AskNewClientInfo();
 
             clientCrudServiceClient.UpdateClient(existingClient, editedClient);
-
-            logger.LogAction(Command.UpdateUser);
         }
 
         private ClientDto AskExistingClientInfo()
@@ -98,8 +91,6 @@ namespace Client
                 if (!created)
                     Console.WriteLine(UsernameTakenErrorMessage);
             }
-
-            logger.LogAction(Command.CreateUser);
         }
 
         private ClientDto AskNewClientInfo()

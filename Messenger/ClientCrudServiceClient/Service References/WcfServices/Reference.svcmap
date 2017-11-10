@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="458e58ee-eb01-424e-8880-c753da986079" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="79575269-208c-4b96-a356-9cfc409a7959" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
@@ -22,10 +22,10 @@
     <MetadataSource Address="http://localhost:6501/WcfServices/ClientCRUDService/mex" Protocol="mex" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="82a88e90-d5be-41b7-929c-1e0c5bdc13a3" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
-    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="c1b2f350-add5-409f-a9ca-ff335d4ecbde" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
-    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="b8447d66-2a4d-4858-bbf7-bdfa182ab5b2" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
-    <MetadataFile FileName="Business.xsd" MetadataType="Schema" ID="d268e4b2-618e-478e-a873-ab57d7ad0118" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="98e73530-555a-4f77-bbd1-bd1c83cdd899" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="09fe0efd-d443-40b1-868f-d0cf616c2196" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="6cb9a002-7298-444e-a094-a408939adb10" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
+    <MetadataFile FileName="Business.xsd" MetadataType="Schema" ID="69db2c8e-61cf-422e-9a1f-42ed26048711" SourceId="1" SourceUrl="http://localhost:6501/WcfServices/ClientCRUDService/mex" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
