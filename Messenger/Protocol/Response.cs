@@ -48,6 +48,9 @@ namespace Protocol
 
         public string ServerMessage() => responseObject[1][0][0];
 
+
+        public int FileChunks() => int.Parse(responseObject[1][0][0]);
+
         public List<string> UserList()
         {
             var users = new List<string>();
@@ -92,6 +95,5 @@ namespace Protocol
         {
             return ResponseCode != null && responseCode.GetHashCode() == int.Parse(ResponseCode);
         }
-
     }
 }

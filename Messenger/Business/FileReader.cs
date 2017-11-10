@@ -19,11 +19,11 @@ namespace Business
             var chunk = new byte[MaxChunkSize];
             while (true)
             {
-                int bytesRead = ReadChunk(stream, chunk);
-                
+                int bytesRead = ReadChunk(chunk);
+
                 var refinedChunk = new byte[bytesRead];
                 Array.Copy(chunk, refinedChunk, bytesRead);
-                
+
                 if (bytesRead != 0)
                 {
                     yield return refinedChunk;
@@ -34,8 +34,14 @@ namespace Business
                 }
             }
         }
-        
-        private int ReadChunk(Stream stream, byte[] chunk)
+
+        public int ExpectedChunks()
+        {
+            double chunks = Convert.ToDouble(stream.Length / (double) MaxChunkSize);
+            return Convert.ToInt32(Math.Ceiling(chunks));
+        }
+
+        private int ReadChunk(byte[] chunk)
         {
             var index = 0;
             while (index < chunk.Length)

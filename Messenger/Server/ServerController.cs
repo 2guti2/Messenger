@@ -262,10 +262,12 @@ namespace Server
         {
             try
             {
+                AuthenticateClient(req);
                 string fileName = req.FileName();
                 conn.SendMessage(BuildResponse(ResponseCode.Ok));
-                string clientDirectory = ClientDirectory(CurrentClient(req));
-                FileDownloader.DownloadFile(conn, clientDirectory, fileName);
+                string clientDirectory = UploadsDirectory();
+                var downloader = new FileDownloader(clientDirectory, fileName);
+                downloader.DownloadFile(conn);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok, "File uploaded succesfully"));
             }
             catch (ClientNotConnectedException e)
@@ -273,13 +275,13 @@ namespace Server
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
         }
-        
+
         public void ListClientFiles(Connection conn, Request req)
         {
             try
             {
-                Client client = CurrentClient(req);
-                List<string> files = FileLister.ListFiles($@"{UploadFolder}\{client.Id}");
+                AuthenticateClient(req);
+                List<string> files = FileLister.ListFiles(UploadsDirectory());
                 conn.SendMessage(BuildResponse(ResponseCode.Ok, files.ToArray()));
             }
             catch (ClientNotConnectedException e)
@@ -287,19 +289,19 @@ namespace Server
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
         }
-        
+
         public void DownloadFile(Connection conn, Request req)
         {
             try
             {
-                Client client = CurrentClient(req);
-                string clientDirectory = ClientDirectory(client);
-                List<string> files = FileLister.ListFiles(clientDirectory);
+                AuthenticateClient(req);
+                string uploadsDirectory = UploadsDirectory();
+                List<string> files = FileLister.ListFiles(uploadsDirectory);
                 string selectedFile = files[req.SelectedFileIndex()];
-                string fullFilePath = $@"{clientDirectory}\{selectedFile}";
-                conn.SendMessage(BuildResponse(ResponseCode.Ok));
-                
-                Protocol.FileUploader.UploadFile(conn, fullFilePath);
+                string fullFilePath = $@"{uploadsDirectory}\{selectedFile}";
+                var uploader = new FileUploader(fullFilePath);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, uploader.ExpectedTicks));
+                uploader.UploadFile(conn);
             }
             catch (ClientNotConnectedException e)
             {
@@ -311,7 +313,12 @@ namespace Server
         {
             return businessController.GetLoggedClient(req.UserToken());
         }
-        
+
+        private void AuthenticateClient(Request req)
+        {
+            CurrentClient(req);
+        }
+
         private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
         {
             var responseList = new List<object>(payload);
@@ -320,9 +327,9 @@ namespace Server
             return responseList.ToArray();
         }
 
-        private string ClientDirectory(Client client)
+        private string UploadsDirectory()
         {
-            return $@"{UploadFolder}\{client.Id}";
+            return $@"{UploadFolder}\";
         }
     }
 }
