@@ -1,14 +1,27 @@
-﻿using Business;
+﻿using System;
+using Business;
 
 namespace Protocol
 {
-    public class FileUploader
+    public class FileUploader : FileStreamer
     {
-        public static void UploadFile(Connection conn, string filePath)
+        
+        public int ExpectedTicks => Reader.ExpectedChunks();
+        private FileReader Reader { get; }
+
+        public FileUploader(string filePath)
         {
-            var reader = new FileReader(filePath);
-            foreach (byte[] chunk in reader.FileChunks())
+            Reader = new FileReader(filePath);
+        }
+
+        public void UploadFile(Connection conn)
+        {
+            foreach (byte[] chunk in Reader.FileChunks())
+            {
                 conn.SendRawData(chunk);
+                ProgressMade();
+            }
+            OperationCompleted();
         }
     }
 }

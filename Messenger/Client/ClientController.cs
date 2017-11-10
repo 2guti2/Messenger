@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using Business;
 using System.Threading;
+using ShellProgressBar;
 
 namespace Client
 {
@@ -19,10 +20,12 @@ namespace Client
         private const int InitialWaitTime = 100;
         private const string FilesDirectory = "files";
         private const string DownloadsDirectory = "downloads";
+        private const string UploadedPercentageLabel = "uploaded";
+        private const string DownloadedPercentageLabel = "downloaded";
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
         private string clientUsername;
-        private string serverIp;
+        private readonly string serverIp;
         private Logger logger;
 
         public ClientController()
@@ -399,7 +402,7 @@ namespace Client
 
             Console.WriteLine("Type the content of your message:");
             string message = Input.RequestString();
-            
+
             Console.WriteLine("You can leave the conversation typing 'exit'.");
 
             Connection connection = clientProtocol.ConnectToServer();
@@ -419,7 +422,7 @@ namespace Client
                 Console.WriteLine(response.ErrorMessage());
             }
         }
-        
+
         private void UploadFile()
         {
             try
@@ -430,7 +433,9 @@ namespace Client
                 var response = new Response(conn.ReadMessage());
                 if (response.HadSuccess())
                 {
-                    Protocol.FileUploader.UploadFile(conn, $@"{FilesDirectory}/{selectedFile}");
+                    var uploader = new FileUploader($@"{FilesDirectory}/{selectedFile}");
+                    AttachProgressBar(uploader, uploader.ExpectedTicks, UploadedPercentageLabel);
+                    uploader.UploadFile(conn);
                     response = new Response(conn.ReadMessage());
                     Console.WriteLine(response.Message);
                 }
@@ -438,7 +443,6 @@ namespace Client
                 {
                     Console.WriteLine(response.Message);
                 }
-
             }
             catch (IOException)
             {
@@ -449,7 +453,14 @@ namespace Client
                 Console.WriteLine("You may not have permission to open that file, try again as administrator.");
             }
         }
-        
+
+        private void AttachProgressBar(FileStreamer streamer, int maxTicks, string labelText)
+        {
+            var progressBar = new ProgressBar(maxTicks, labelText, ConsoleColor.Cyan);
+            streamer.OnProgressMade += () => progressBar.Tick();
+            streamer.OnOperationCompleted += () => progressBar.Dispose();
+        }
+
         private void DownloadFile()
         {
             Connection conn = clientProtocol.ConnectToServer();
@@ -481,9 +492,12 @@ namespace Client
             var response = new Response(conn.ReadMessage());
             if (response.HadSuccess())
             {
+                int fileChunks = response.FileChunks();
                 string selectedFile = clientFiles[selectedFileIndex];
-                string downloadedFile = FileDownloader.DownloadFile(conn, DownloadsDirectory, selectedFile);
-                Console.WriteLine($@"File downloaded into {DownloadsDirectory}\{downloadedFile}");
+                var downloader = new FileDownloader(DownloadsDirectory, selectedFile);
+                AttachProgressBar(downloader, fileChunks, DownloadedPercentageLabel);
+                downloader.DownloadFile(conn);
+                Console.WriteLine($@"File downloaded into {downloader.FilePath}");
             }
             else
             {
@@ -496,13 +510,13 @@ namespace Client
             var regex = new Regex(@"^\d+_");
             return files.Select(file => regex.Replace(file, "")).ToList();
         }
-        
+
         private int SelectFileToDownload(List<string> files)
         {
             int selectedOption = Menus.MapInputWithMenuItemsList(files);
             return selectedOption - 1;
         }
-        
+
         private string SelectFileToUpload()
         {
             List<string> files = FileLister.ListFiles(FilesDirectory);
@@ -586,7 +600,7 @@ namespace Client
                     if (readMessageResponse.HadSuccess())
                     {
                         messages = readMessageResponse.Messages();
-                        if(messages.Count > 0)
+                        if (messages.Count > 0)
                             logger.LogAction(Command.ReadMessage);
                         messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
                     }
