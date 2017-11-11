@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Messaging;
 using Business;
+using System.Collections;
+using System.Collections.Generic;
 
-namespace Server
+namespace LogServer
 {
-    public class MessageQueueServer
+    internal class MessageQueueServer
     {
         private bool isServerRunning;
 
@@ -16,9 +14,13 @@ namespace Server
         {
             isServerRunning = true;
             QueuePath = QueueUtillities.Path(serverIp);
+            LogEntries = new List<LogEntry>();
         }
 
         public string QueuePath { get; }
+
+        //this needs to be part of the remote store
+        public List<LogEntry> LogEntries { get; }
 
         public void Start()
         {
@@ -39,7 +41,7 @@ namespace Server
                 catch (MessageQueueException) { }
 
                 if(IsValidEntry(entry))
-                    QueueUtillities.SaveEntry(entry);
+                    LogEntries.Add(entry);
             }
         }
 

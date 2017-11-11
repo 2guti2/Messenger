@@ -52,10 +52,6 @@ namespace Server
                 });
             thread.Start();
 
-            var msmqServer = new MessageQueueServer(ip);
-            var msmqServerThread = new Thread(() => msmqServer.Start());
-            msmqServerThread.Start();
-
             WCFHost wcfHostService = new WCFHost();
             var wcfHostServiceThread = new Thread(() => wcfHostService.Start());
             wcfHostServiceThread.Start();
@@ -76,8 +72,6 @@ namespace Server
                     break;
             }
             thread.Join();
-            msmqServer.Stop();
-            msmqServerThread.Join();
             wcfHostService.Stop();
             wcfHostServiceThread.Join();
         }
