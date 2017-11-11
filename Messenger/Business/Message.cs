@@ -2,6 +2,7 @@
 
 namespace Business
 {
+    [Serializable]
     public class Message
     {
         public Message()

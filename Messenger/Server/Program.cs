@@ -32,7 +32,13 @@ namespace Server
                 Environment.Exit(0);
             }
 
-            CoreController.Build(new Store());
+            string storeServerIp = GetStoreServerIpFromConfigFile();
+            int storeServerPort = GetStoreServerPortFromConfigFile();
+
+            //TODO:MG try catch this
+            var store = (Store)Activator.GetObject(typeof(Store), $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+
+            CoreController.Build(store);
             var businessController = CoreController.BusinessControllerInstance();
 
             var thread = new Thread(() =>
@@ -107,6 +113,18 @@ namespace Server
         {
             var appSettings = new AppSettingsReader();
             return (int)appSettings.GetValue("ServerPort", typeof(int));
+        }
+
+        private static string GetStoreServerIpFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (string)appSettings.GetValue("StoreServerIp", typeof(string));
+        }
+
+        private static int GetStoreServerPortFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (int)appSettings.GetValue("StoreServerPort", typeof(int));
         }
     }
 }

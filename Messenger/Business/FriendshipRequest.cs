@@ -3,6 +3,7 @@ using System.Runtime.Remoting.Channels;
 
 namespace Business
 {
+    [Serializable]
     public class FriendshipRequest
     {
         public FriendshipRequest(Client sender, Client receiver)

@@ -21,23 +21,23 @@ namespace Client
 
         public void LogAction(Command command)
         {
-            string queuePath = QueueUtillities.Path(serverIp);
+            //string queuePath = QueueUtillities.Path(serverIp);
 
-            if (!MessageQueue.Exists(queuePath)) MessageQueue.Create(queuePath);
+            //if (!MessageQueue.Exists(queuePath)) MessageQueue.Create(queuePath);
 
-            var logEntry = new LogEntry()
-            {
-                Action = command,
-                ClientUsername = clientUsername,
-                Timestamp = DateTime.Now
-            };
+            //var logEntry = new LogEntry()
+            //{
+            //    Action = command,
+            //    ClientUsername = clientUsername,
+            //    Timestamp = DateTime.Now
+            //};
 
-            using (var messageQueue = new MessageQueue(queuePath))
-            {
-                var message = new System.Messaging.Message(logEntry);
+            //using (var messageQueue = new MessageQueue(queuePath))
+            //{
+            //    var message = new System.Messaging.Message(logEntry);
 
-                messageQueue.Send(message);
-            }
+            //    messageQueue.Send(message);
+            //}
         }
     }
 }

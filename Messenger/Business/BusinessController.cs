@@ -15,7 +15,7 @@ namespace Business
         public BusinessController(IStore store)
         {
             Store = store;
-            Server = new Server();
+            Server = new Server(store);
         }
 
         public string Login(Client client)
@@ -53,10 +53,7 @@ namespace Business
                 if (!Store.ClientExists(existingClient))
                     return false;
 
-                Client storeClient = Store.GetClient(existingClient.Username);
-
-                storeClient.Username = newClient.Username;
-                storeClient.Password = newClient.Password;
+                Store.UpdateClient(existingClient, newClient);
             }
             return true;
         }
@@ -77,11 +74,7 @@ namespace Business
         {
             lock (friendshipLocker)
             {
-                Client receiver = Store.GetClient(receiverUsername);
-                if (receiver == null) throw new RecordNotFoundException("The client doesn't exist");
-                receiver.AddFriendshipRequest(sender);
-
-                return receiver;
+                return Store.FriendshipRequest(sender, receiverUsername);
             }
         }
 
@@ -116,7 +109,7 @@ namespace Business
         {
             lock (friendshipLocker)
             {
-                List<FriendshipRequest> requests = currentClient.FriendshipRequests;
+                List<FriendshipRequest> requests = Store.GetClient(currentClient.Username).FriendshipRequests;
                 var formattedRequests = new string[requests.Count][];
                 for (var i = 0; i < requests.Count; i++)
                 {
@@ -146,7 +139,7 @@ namespace Business
         {
             lock (friendshipLocker)
             {
-                return currentClient.ConfirmRequest(requestId);
+                return Store.ConfirmFriendshipRequest(currentClient, requestId);
             }
         }
 
@@ -154,7 +147,7 @@ namespace Business
         {
             lock (friendshipLocker)
             {
-                currentClient.RejectRequest(requestId);
+                Store.RejectRequest(currentClient, requestId);
             }
         }
 
