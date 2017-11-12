@@ -58,10 +58,6 @@ namespace Server
                 });
             thread.Start();
 
-            WCFHost wcfHostService = new WCFHost();
-            var wcfHostServiceThread = new Thread(() => wcfHostService.Start());
-            wcfHostServiceThread.Start();
-
             var options = new List<string>(new[]
             {
                 "Show All Clients",
@@ -78,8 +74,6 @@ namespace Server
                     break;
             }
             thread.Join();
-            wcfHostService.Stop();
-            wcfHostServiceThread.Join();
         }
 
         private static void MapOptionToAction(int option, BusinessController controller)
