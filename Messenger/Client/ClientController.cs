@@ -444,6 +444,10 @@ namespace Client
                     Console.WriteLine(response.Message);
                 }
             }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("You have no files to select from");
+            }
             catch (IOException)
             {
                 Console.WriteLine("There was a problem opening the file, pelase try again.");
@@ -469,19 +473,13 @@ namespace Client
             if (response.HadSuccess())
             {
                 List<string> clientFiles = response.FilesList();
-                if (clientFiles.Count > 0)
-                {
-                    DownloadFileFromServer(RemoveTimestampFromFileNames(clientFiles));
-                }
-                else
-                {
-                    Console.WriteLine("You have no files uploaded");
-                }
+                DownloadFileFromServer(RemoveTimestampFromFileNames(clientFiles));
             }
             else
             {
                 Console.WriteLine(response.Message);
             }
+            conn.Close();
         }
 
         private void DownloadFileFromServer(List<string> clientFiles)
@@ -503,6 +501,7 @@ namespace Client
             {
                 Console.WriteLine(response.Message);
             }
+            conn.Close();
         }
 
         private List<string> RemoveTimestampFromFileNames(List<string> files)

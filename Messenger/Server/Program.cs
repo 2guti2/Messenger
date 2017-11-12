@@ -20,7 +20,7 @@ namespace Server
             var store = (Store)Activator.GetObject(typeof(Store), $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
 
             CoreController.Build(store);
-            var businessController = CoreController.BusinessControllerInstance();
+            BusinessController businessController = CoreController.BusinessControllerInstance();
 
             var launcher = new ServerLauncher(ip, port);
             launcher.Launch();

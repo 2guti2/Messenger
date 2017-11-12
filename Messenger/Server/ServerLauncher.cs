@@ -40,7 +40,15 @@ namespace Server
                     }
                 }
             });
-            thread.Start();
+
+            try
+            {
+                thread.Start();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Could not start server");
+            }
             return thread;
         }
     }
