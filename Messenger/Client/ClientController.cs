@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using Business;
 using System.Threading;
+using Business.Log;
 using ShellProgressBar;
 
 namespace Client
@@ -27,6 +28,7 @@ namespace Client
         private string clientUsername;
         private readonly string serverIp;
         private Logger logger;
+        private Business.Logger bLogger;
 
         public ClientController()
         {
@@ -37,6 +39,7 @@ namespace Client
             string clientIp = GetClientIpFromConfigFile();
             int clientPort = GetClientPortFromConfigFile();
             clientProtocol = new ClientProtocol(serverIp, serverPort, clientIp, clientPort);
+            bLogger = new Business.Logger(serverIp);
         }
 
         public void DisconnectFromServer()
@@ -298,6 +301,15 @@ namespace Client
                     clientUsername = client.Username;
                     logger = new Logger(clientUsername, serverIp);
                     logger.LogAction(Command.Login);
+                    
+                    var entry = new LogEntry(new LoginEntry()
+                    {
+                        ClientUsername = clientUsername,
+                        Timestamp = DateTime.Now
+                    });
+
+                    bLogger.LogAction(entry);
+
                     Console.WriteLine(ClientUI.LoginSuccessful());
                 }
                 else

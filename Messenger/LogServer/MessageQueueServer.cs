@@ -9,18 +9,16 @@ namespace LogServer
     internal class MessageQueueServer
     {
         private bool isServerRunning;
+        private BusinessController businessController;
 
-        public MessageQueueServer(string serverIp)
+        public MessageQueueServer(string serverIp, BusinessController businessController)
         {
             isServerRunning = true;
             QueuePath = QueueUtillities.Path(serverIp);
-            LogEntries = new List<LogEntry>();
+            this.businessController = businessController;
         }
 
         public string QueuePath { get; }
-
-        //this needs to be part of the remote store
-        public List<LogEntry> LogEntries { get; }
 
         public void Start()
         {
@@ -40,8 +38,8 @@ namespace LogServer
                 }
                 catch (MessageQueueException) { }
 
-                if(IsValidEntry(entry))
-                    LogEntries.Add(entry);
+                if (IsValidEntry(entry))
+                    businessController.AddLogEntry(entry);
             }
         }
 
@@ -52,7 +50,7 @@ namespace LogServer
 
         bool IsValidEntry(LogEntry entry)
         {
-            return entry != null && entry.ClientUsername != null;
+            return entry != null && entry.Text != null;
         }
     }
 }

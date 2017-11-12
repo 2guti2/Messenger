@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using Business;
+using Persistence;
 
 namespace LogServer
 {
@@ -12,24 +14,29 @@ namespace LogServer
     {
         static void Main(string[] args)
         {
-            string serverIp = GetServerIpFromConfigFile();
-            var msmqServer = new MessageQueueServer(serverIp);
+            string serverIp = Utillities.GetServerIpFromConfigFile();
+            string storeServerIp = Utillities.GetStoreServerIpFromConfigFile();
+            int storeServerPort = Utillities.GetStoreServerPortFromConfigFile();
+            var store =
+                (Store)Activator.GetObject
+                (
+                    typeof(Store),
+                    $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}"
+                );
+            CoreController.Build(store);
+            BusinessController businessController = CoreController.BusinessControllerInstance();
+
+            var msmqServer = new MessageQueueServer(serverIp, businessController);
             var msmqServerThread = new Thread(() => msmqServer.Start());
             msmqServerThread.Start();
 
-            var msmqClient = new MessageQueueClient(msmqServer);
+            var msmqClient = new MessageQueueClient(msmqServer, businessController);
 
+            Console.Clear();
             while (true)
             {
-                Console.Clear();
-                msmqClient.Menu();    
+                msmqClient.PrintLogs();    
             }
-        }
-
-        private static string GetServerIpFromConfigFile()
-        {
-            var appSettings = new AppSettingsReader();
-            return (string)appSettings.GetValue("ServerIp", typeof(string));
         }
     }
 }

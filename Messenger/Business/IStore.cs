@@ -19,5 +19,7 @@ namespace Business
         Client FriendshipRequest(Client sender, string receiverUsername);
         FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId);
         void RejectRequest(Client currentClient, string requestId);
+        void AddLogEntry(LogEntry entryAttributes);
+        List<LogEntry> GetLogEntries();
     }
 }

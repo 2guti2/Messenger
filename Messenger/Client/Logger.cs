@@ -21,7 +21,7 @@ namespace Client
 
             //if (!MessageQueue.Exists(queuePath)) MessageQueue.Create(queuePath);
 
-            //var logEntry = new LogEntry()
+            //var logEntry = new AddLogEntry()
             //{
             //    Action = command,
             //    ClientUsername = clientUsername,

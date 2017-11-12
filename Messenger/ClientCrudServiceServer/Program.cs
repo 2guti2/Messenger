@@ -14,25 +14,18 @@ namespace ClientCrudServiceServer
     {
         static void Main(string[] args)
         {
-            string storeServerIp = GetStoreServerIpFromConfigFile();
-            int storeServerPort = GetStoreServerPortFromConfigFile();
-            var store = (Store)Activator.GetObject(typeof(Store), $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+            string storeServerIp = Utillities.GetStoreServerIpFromConfigFile();
+            int storeServerPort = Utillities.GetStoreServerPortFromConfigFile();
+            var store = 
+                (Store)Activator.GetObject
+                (
+                    typeof(Store), 
+                    $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}"
+                );
             CoreController.Build(store);
 
             WCFHost wcfHostService = new WCFHost();
             wcfHostService.Start();
-        }
-
-        private static string GetStoreServerIpFromConfigFile()
-        {
-            var appSettings = new AppSettingsReader();
-            return (string)appSettings.GetValue("StoreServerIp", typeof(string));
-        }
-
-        private static int GetStoreServerPortFromConfigFile()
-        {
-            var appSettings = new AppSettingsReader();
-            return (int)appSettings.GetValue("StoreServerPort", typeof(int));
         }
     }
 }

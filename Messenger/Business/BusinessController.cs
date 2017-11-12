@@ -1,5 +1,6 @@
 ﻿using Business.Exceptions;
 using System.Collections.Generic;
+using System;
 
 namespace Business
 {
@@ -46,6 +47,16 @@ namespace Business
             Store.UpdateClient(existingClient, newClient);
 
             return true;
+        }
+
+        public void AddLogEntry(LogEntry entry)
+        {
+            Store.AddLogEntry(entry);
+        }
+
+        public List<LogEntry> GetLogEntries()
+        {
+            return Store.GetLogEntries();
         }
 
         public bool CreateClient(Client client)
