@@ -3,12 +3,12 @@ using System.Linq;
 using Business;
 using Business.Exceptions;
 using Protocol;
-using System.Threading;
 
 namespace Server
 {
     public class ServerController
     {
+        private const string UploadFolder = "uploads";
         private readonly BusinessController businessController;
 
         public ServerController(BusinessController businessController)
@@ -175,7 +175,7 @@ namespace Server
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
         }
-        
+
         public void ListAllUsers(Connection conn, Request request)
         {
             try
@@ -209,19 +209,6 @@ namespace Server
         {
             object[] response = BuildResponse(ResponseCode.BadRequest, "Unrecognizable command");
             conn.SendMessage(response);
-        }
-
-        private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
-        {
-            var responseList = new List<object>(payload);
-            responseList.Insert(0, responseCode.GetHashCode());
-
-            return responseList.ToArray();
-        }
-
-        private Client CurrentClient(Request req)
-        {
-            return businessController.GetLoggedClient(req.UserToken());
         }
 
         public void SendMessage(Connection conn, Request request)
@@ -268,6 +255,80 @@ namespace Server
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
             }
+        }
+
+        public void UploadFile(Connection conn, Request req)
+        {
+            try
+            {
+                AuthenticateClient(req);
+                string fileName = req.FileName();
+                conn.SendMessage(BuildResponse(ResponseCode.Ok));
+                string clientDirectory = UploadsDirectory();
+                var downloader = new FileDownloader(clientDirectory, fileName);
+                downloader.DownloadFile(conn);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, "File uploaded succesfully"));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void ListClientFiles(Connection conn, Request req)
+        {
+            try
+            {
+                AuthenticateClient(req);
+                List<string> files = FileLister.ListFiles(UploadsDirectory());
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, files.ToArray()));
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        public void DownloadFile(Connection conn, Request req)
+        {
+            try
+            {
+                AuthenticateClient(req);
+                string uploadsDirectory = UploadsDirectory();
+                List<string> files = FileLister.ListFiles(uploadsDirectory);
+                string selectedFile = files[req.SelectedFileIndex()];
+                string fullFilePath = $@"{uploadsDirectory}\{selectedFile}";
+                var uploader = new FileUploader(fullFilePath);
+                conn.SendMessage(BuildResponse(ResponseCode.Ok, uploader.ExpectedTicks));
+                uploader.UploadFile(conn);
+            }
+            catch (ClientNotConnectedException e)
+            {
+                conn.SendMessage(BuildResponse(ResponseCode.Unauthorized, e.Message));
+            }
+        }
+
+        private Client CurrentClient(Request req)
+        {
+            return businessController.GetLoggedClient(req.UserToken());
+        }
+
+        private void AuthenticateClient(Request req)
+        {
+            CurrentClient(req);
+        }
+
+        private object[] BuildResponse(ResponseCode responseCode, params object[] payload)
+        {
+            var responseList = new List<object>(payload);
+            responseList.Insert(0, responseCode.GetHashCode());
+
+            return responseList.ToArray();
+        }
+
+        private string UploadsDirectory()
+        {
+            return $@"{UploadFolder}\";
         }
     }
 }

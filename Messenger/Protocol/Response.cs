@@ -1,5 +1,4 @@
-﻿using Business;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Protocol
 {
@@ -48,6 +47,9 @@ namespace Protocol
 
         public string ServerMessage() => responseObject[1][0][0];
 
+
+        public int FileChunks() => int.Parse(responseObject[1][0][0]);
+
         public List<string> UserList()
         {
             var users = new List<string>();
@@ -75,6 +77,15 @@ namespace Protocol
             }
 
             return receivedRequests;
+        }
+        
+        public List<string> FilesList()
+        {
+            var list = new List<string>();
+            for (var i = 1; i < responseObject.Length; i++)
+                list.Add(responseObject[i][0][0]);
+
+            return list;
         }
 
         private string ResponseCode => responseObject[0][0][0];

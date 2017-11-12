@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using Protocol;
 using UI;
 using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Security;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using Business;
 using System.Threading;
-using System.Messaging;
+using ShellProgressBar;
 
 namespace Client
 {
@@ -14,10 +18,14 @@ namespace Client
     {
         private const double WaitTimeAumentation = 1.5;
         private const int InitialWaitTime = 100;
+        private const string FilesDirectory = "files";
+        private const string DownloadsDirectory = "downloads";
+        private const string UploadedPercentageLabel = "uploaded";
+        private const string DownloadedPercentageLabel = "downloaded";
         private readonly ClientProtocol clientProtocol;
         private string clientToken;
         private string clientUsername;
-        private string serverIp;
+        private readonly string serverIp;
         private Logger logger;
 
         public ClientController()
@@ -59,7 +67,7 @@ namespace Client
             ClientUI.Clear();
         }
 
-        private bool ListConnectedUsers()
+        private void ListConnectedUsers()
         {
             bool serverHasClients;
             Connection connection = clientProtocol.ConnectToServer();
@@ -83,7 +91,7 @@ namespace Client
             }
             connection.Close();
 
-            return serverHasClients;
+            return;
         }
 
         private List<string> GetListOfAllClients()
@@ -217,6 +225,8 @@ namespace Client
                     "Send Friendship Request",
                     "Respond to Friendship Request",
                     "Chat",
+                    "Upload File",
+                    "Download File",
                     "Exit"
                 });
         }
@@ -362,6 +372,12 @@ namespace Client
                 case 5:
                     Chat();
                     break;
+                case 6:
+                    UploadFile();
+                    break;
+                case 7:
+                    DownloadFile();
+                    break;
                 default:
                     DisconnectFromServer();
                     Environment.Exit(0);
@@ -375,7 +391,7 @@ namespace Client
             List<string> friends = FriendsList();
             if (friends.Count == 0)
             {
-                Console.WriteLine("You have no friends ¯\\_(ツ)_/¯");
+                Console.WriteLine(@"You have no friends ¯\_(ツ)_/¯");
                 return;
             }
             int input = Menus.MapInputWithMenuItemsList(friends);
@@ -386,7 +402,7 @@ namespace Client
 
             Console.WriteLine("Type the content of your message:");
             string message = Input.RequestString();
-            
+
             Console.WriteLine("You can leave the conversation typing 'exit'.");
 
             Connection connection = clientProtocol.ConnectToServer();
@@ -405,6 +421,107 @@ namespace Client
             {
                 Console.WriteLine(response.ErrorMessage());
             }
+        }
+
+        private void UploadFile()
+        {
+            try
+            {
+                Connection conn = clientProtocol.ConnectToServer();
+                string selectedFile = SelectFileToUpload();
+                conn.SendMessage(BuildRequest(Command.UploadFile, selectedFile));
+                var response = new Response(conn.ReadMessage());
+                if (response.HadSuccess())
+                {
+                    var uploader = new FileUploader($@"{FilesDirectory}/{selectedFile}");
+                    AttachProgressBar(uploader, uploader.ExpectedTicks, UploadedPercentageLabel);
+                    uploader.UploadFile(conn);
+                    response = new Response(conn.ReadMessage());
+                    Console.WriteLine(response.Message);
+                }
+                else
+                {
+                    Console.WriteLine(response.Message);
+                }
+            }
+            catch (IOException)
+            {
+                Console.WriteLine("There was a problem opening the file, pelase try again.");
+            }
+            catch (SecurityException)
+            {
+                Console.WriteLine("You may not have permission to open that file, try again as administrator.");
+            }
+        }
+
+        private void AttachProgressBar(FileStreamer streamer, int maxTicks, string labelText)
+        {
+            var progressBar = new ProgressBar(maxTicks, labelText, ConsoleColor.Cyan);
+            streamer.OnProgressMade += () => progressBar.Tick();
+            streamer.OnOperationCompleted += () => progressBar.Dispose();
+        }
+
+        private void DownloadFile()
+        {
+            Connection conn = clientProtocol.ConnectToServer();
+            conn.SendMessage(BuildRequest(Command.ListClientFiles));
+            var response = new Response(conn.ReadMessage());
+            if (response.HadSuccess())
+            {
+                List<string> clientFiles = response.FilesList();
+                if (clientFiles.Count > 0)
+                {
+                    DownloadFileFromServer(RemoveTimestampFromFileNames(clientFiles));
+                }
+                else
+                {
+                    Console.WriteLine("You have no files uploaded");
+                }
+            }
+            else
+            {
+                Console.WriteLine(response.Message);
+            }
+        }
+
+        private void DownloadFileFromServer(List<string> clientFiles)
+        {
+            Connection conn = clientProtocol.ConnectToServer();
+            int selectedFileIndex = SelectFileToDownload(clientFiles);
+            conn.SendMessage(BuildRequest(Command.DownloadFile, selectedFileIndex));
+            var response = new Response(conn.ReadMessage());
+            if (response.HadSuccess())
+            {
+                int fileChunks = response.FileChunks();
+                string selectedFile = clientFiles[selectedFileIndex];
+                var downloader = new FileDownloader(DownloadsDirectory, selectedFile);
+                AttachProgressBar(downloader, fileChunks, DownloadedPercentageLabel);
+                downloader.DownloadFile(conn);
+                Console.WriteLine($@"File downloaded into {downloader.FilePath}");
+            }
+            else
+            {
+                Console.WriteLine(response.Message);
+            }
+        }
+
+        private List<string> RemoveTimestampFromFileNames(List<string> files)
+        {
+            var regex = new Regex(@"^\d+_");
+            return files.Select(file => regex.Replace(file, "")).ToList();
+        }
+
+        private int SelectFileToDownload(List<string> files)
+        {
+            int selectedOption = Menus.MapInputWithMenuItemsList(files);
+            return selectedOption - 1;
+        }
+
+        private string SelectFileToUpload()
+        {
+            List<string> files = FileLister.ListFiles(FilesDirectory);
+            int selectedOption = Menus.MapInputWithMenuItemsList(files);
+            return files[selectedOption - 1];
         }
 
         private void PrintConversations(string friend)
@@ -483,7 +600,7 @@ namespace Client
                     if (readMessageResponse.HadSuccess())
                     {
                         messages = readMessageResponse.Messages();
-                        if(messages.Count > 0)
+                        if (messages.Count > 0)
                             logger.LogAction(Command.ReadMessage);
                         messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
                     }

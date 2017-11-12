@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using Business;
 
 namespace Client
 {
@@ -26,6 +25,7 @@ namespace Client
             catch (Exception)
             {
                 Console.WriteLine("There was a problem with something you did, the app will exit");
+                Console.ReadKey();
                 clientController.DisconnectFromServer();
                 Environment.Exit(1);
             }

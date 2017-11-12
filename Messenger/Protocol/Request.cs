@@ -15,6 +15,8 @@ namespace Protocol
 
         public string Message => requestObject[2][0][0];
 
+        public string FileName() => requestObject[1][0][0];
+
         public string Recipient() => requestObject[1][0][0];
 
         public string Username() => requestObject[1][0][0];
@@ -24,5 +26,7 @@ namespace Protocol
         public string UserToken() => requestObject[0][1][0];
 
         public string FriendshipRequestId() => requestObject[1][0][0];
+
+        public int SelectedFileIndex() => int.Parse(requestObject[1][0][0]);
     }
 }

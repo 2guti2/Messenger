@@ -19,6 +19,9 @@ namespace Business
         GetConversation,
         CreateUser,
         UpdateUser,
-        DeleteUser
+        DeleteUser,
+        UploadFile,
+        ListClientFiles,
+        DownloadFile
     }
 }

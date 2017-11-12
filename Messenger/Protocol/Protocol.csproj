@@ -42,6 +42,12 @@
   <ItemGroup>
     <Compile Include="ClientProtocol.cs" />
     <Compile Include="Connection.cs" />
+    <Compile Include="FileDownloader.cs" />
+    <Compile Include="FileLister.cs" />
+    <Compile Include="FileReader.cs" />
+    <Compile Include="FileStreamer.cs" />
+    <Compile Include="FileUploader.cs" />
+    <Compile Include="FileWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="Response.cs" />
