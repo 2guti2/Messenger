@@ -12,5 +12,12 @@ namespace Business
         List<Message> UnreadMessages(Client of, string from);
         List<Message> AllMessages(Client of, string @from);
         List<Client> GetClients();
+        void DeleteClient(Client client);
+        void ConnectClient(Client client, Session session);
+        void DisconnectClient(string token);
+        void UpdateClient(Client existingClient, Client newClient);
+        Client FriendshipRequest(Client sender, string receiverUsername);
+        FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId);
+        void RejectRequest(Client currentClient, string requestId);
     }
 }

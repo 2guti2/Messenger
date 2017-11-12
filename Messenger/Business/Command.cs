@@ -17,6 +17,9 @@ namespace Business
         SendMessage,
         ReadMessage,
         GetConversation,
+        CreateUser,
+        UpdateUser,
+        DeleteUser,
         UploadFile,
         ListClientFiles,
         DownloadFile

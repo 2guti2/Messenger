@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Messaging;
 using Business;
+using System.Collections;
+using System.Collections.Generic;
 
-namespace Server
+namespace LogServer
 {
-    public class MessageQueueServer
+    internal class MessageQueueServer
     {
+        private bool isServerRunning;
+
         public MessageQueueServer(string serverIp)
         {
+            isServerRunning = true;
             QueuePath = QueueUtillities.Path(serverIp);
+            LogEntries = new List<LogEntry>();
         }
 
         public string QueuePath { get; }
+
+        //this needs to be part of the remote store
+        public List<LogEntry> LogEntries { get; }
 
         public void Start()
         {
@@ -20,7 +29,7 @@ namespace Server
                 Formatter = new XmlMessageFormatter(new Type[] { typeof(LogEntry) })
             };
 
-            while (true)
+            while (isServerRunning)
             {
                 LogEntry entry = null;
 
@@ -32,8 +41,13 @@ namespace Server
                 catch (MessageQueueException) { }
 
                 if(IsValidEntry(entry))
-                    QueueUtillities.SaveEntry(entry);
+                    LogEntries.Add(entry);
             }
+        }
+
+        public void Stop()
+        {
+            isServerRunning = false;
         }
 
         bool IsValidEntry(LogEntry entry)

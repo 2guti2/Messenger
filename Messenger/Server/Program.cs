@@ -2,6 +2,7 @@
 using System.Threading;
 using Business;
 using Persistence;
+using System;
 
 namespace Server
 {
@@ -9,18 +10,22 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            string ip = GetServerIpFromConfigFile();
             int port = GetServerPortFromConfigFile();
-            var businessController = new BusinessController(new Store());
+            string ip = GetServerIpFromConfigFile();
+
+            string storeServerIp = GetStoreServerIpFromConfigFile();
+            int storeServerPort = GetStoreServerPortFromConfigFile();
+
+            //TODO:MG try catch this
+            var store = (Store)Activator.GetObject(typeof(Store), $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+
+            CoreController.Build(store);
+            var businessController = CoreController.BusinessControllerInstance();
 
             var launcher = new ServerLauncher(ip, port);
             launcher.Launch();
             Thread serverThread = launcher.StartAcceptingConnections(businessController);
 
-            var msmqServer = new MessageQueueServer(ip);
-            var msmqServerThread = new Thread(() => msmqServer.Start());
-            msmqServerThread.Start();
-            
             var prompt = new ServerPrompt(businessController);
             prompt.PromptUserForAction();
 
@@ -30,13 +35,25 @@ namespace Server
         private static string GetServerIpFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (string) appSettings.GetValue("ServerIp", typeof(string));
+            return (string)appSettings.GetValue("ServerIp", typeof(string));
         }
 
         private static int GetServerPortFromConfigFile()
         {
             var appSettings = new AppSettingsReader();
-            return (int) appSettings.GetValue("ServerPort", typeof(int));
+            return (int)appSettings.GetValue("ServerPort", typeof(int));
+        }
+
+        private static string GetStoreServerIpFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (string)appSettings.GetValue("StoreServerIp", typeof(string));
+        }
+
+        private static int GetStoreServerPortFromConfigFile()
+        {
+            var appSettings = new AppSettingsReader();
+            return (int)appSettings.GetValue("StoreServerPort", typeof(int));
         }
     }
 }

@@ -4,6 +4,7 @@ using Business.Exceptions;
 
 namespace Business
 {
+    [Serializable]
     public class Client
     {
         private static int LastId = 0;
@@ -27,8 +28,8 @@ namespace Business
         public List<Message> Messages { get; set; }
         public int FriendsCount => Friends.Count;
         public DateTime? ConnectedSince => Sessions.Find(session => session.Active)?.ConnectedSince;
-        public int ConnectionsCount => Sessions.Count;
-        private List<Session> Sessions { get; }
+        public int ConnectionsCount { get; set; }
+        public List<Session> Sessions { get; set; }
 
         public override bool Equals(object obj)
         {

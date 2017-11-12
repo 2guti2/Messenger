@@ -6,7 +6,7 @@ using Business.Exceptions;
 
 namespace Persistence
 {
-    public class Store : IStore
+    public class Store : MarshalByRefObject, IStore
     {
         private List<Client> Clients { get; set; }
 
@@ -34,7 +34,6 @@ namespace Persistence
         {
             return Clients.Find(c => c.Equals(client)).Friends;
         }
-
 
         public void SendMessage(string usernameFrom, string usernameTo, string messageContent)
         {
@@ -87,6 +86,54 @@ namespace Persistence
         public List<Client> GetClients()
         {
             return Clients;
+        }
+
+        public void DeleteClient(Client client)
+        {
+            Clients.Remove(client);
+        }
+
+        public void ConnectClient(Client client, Session session)
+        {
+            Client storedClient = GetClient(client.Username);
+            storedClient.ConnectionsCount++;
+            storedClient.AddSession(session);
+        }
+
+        public void DisconnectClient(string token)
+        {
+            Client storedClient = Clients.Find(c => c.Sessions.Exists(s => s.Id.Equals(token)));
+            storedClient.Sessions = new List<Session>();
+        }
+
+        public void UpdateClient(Client existingClient, Client newClient)
+        {
+            Client storedClient = GetClient(existingClient.Username);
+
+            storedClient.Username = newClient.Username;
+            storedClient.Password = newClient.Password;
+        }
+
+        public Client FriendshipRequest(Client sender, string receiverUsername)
+        {
+            Client receiver = GetClient(receiverUsername);
+            Client storeSender = GetClient(sender.Username);
+            if (receiver == null) throw new RecordNotFoundException("The client doesn't exist");
+            receiver.AddFriendshipRequest(storeSender);
+
+            return receiver;
+        }
+
+        public FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId)
+        {
+            Client storedClient = GetClient(currentClient.Username);
+            return storedClient.ConfirmRequest(requestId);
+        }
+
+        public void RejectRequest(Client currentClient, string requestId)
+        {
+            Client storedClient = GetClient(currentClient.Username);
+            storedClient.RejectRequest(requestId);
         }
     }
 }

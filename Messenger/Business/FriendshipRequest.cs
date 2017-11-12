@@ -2,6 +2,7 @@
 
 namespace Business
 {
+    [Serializable]
     public class FriendshipRequest
     {
         public FriendshipRequest(Client sender, Client receiver)
