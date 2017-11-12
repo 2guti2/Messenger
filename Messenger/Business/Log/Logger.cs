@@ -20,8 +20,6 @@ namespace Business
         {
             string queuePath = QueueUtillities.Path(serverIp);
 
-            if (!MessageQueue.Exists(queuePath)) MessageQueue.Create(queuePath);
-
             using (var messageQueue = new MessageQueue(queuePath))
             {
                 var message = new System.Messaging.Message(entry);

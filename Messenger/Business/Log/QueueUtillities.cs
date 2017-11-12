@@ -9,8 +9,13 @@
         public static string Path(string serverIp)
         {
             return  serverIp.Equals(Localhost)
-                    ? $".\\private$\\{Name}"
-                    : $"FormatName:Direct=TCP:{serverIp}\\private$\\{Name}";
+                    ? $@".\private$\{Name}"
+                    : $@"FormatName:Direct=TCP:{serverIp}\private$\{Name}";
+        }
+
+        public static string QueueCreationPath()
+        {
+            return $@".\private$\{Name}";
         }
 
         public static void SaveEntry(LogEntryAttributes entryAttributes)

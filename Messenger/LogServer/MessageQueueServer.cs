@@ -11,10 +11,10 @@ namespace LogServer
         private bool isServerRunning;
         private BusinessController businessController;
 
-        public MessageQueueServer(string serverIp, BusinessController businessController)
+        public MessageQueueServer(BusinessController businessController)
         {
             isServerRunning = true;
-            QueuePath = QueueUtillities.Path(serverIp);
+            QueuePath = QueueUtillities.QueueCreationPath();
             this.businessController = businessController;
         }
 
@@ -22,11 +22,12 @@ namespace LogServer
 
         public void Start()
         {
+            if (!MessageQueue.Exists(QueuePath)) MessageQueue.Create(QueuePath);
+
             var messageQueue = new MessageQueue(QueuePath)
             {
-                Formatter = new XmlMessageFormatter(new Type[] { typeof(LogEntry) })
+                Formatter = new XmlMessageFormatter(new[] { typeof(LogEntry) })
             };
-
             while (isServerRunning)
             {
                 LogEntry entry = null;
@@ -34,7 +35,7 @@ namespace LogServer
                 try
                 {
                     System.Messaging.Message message = messageQueue.Receive();
-                    entry = message.Body as LogEntry;
+                    entry = message?.Body as LogEntry;
                 }
                 catch (MessageQueueException) { }
 
@@ -50,7 +51,7 @@ namespace LogServer
 
         bool IsValidEntry(LogEntry entry)
         {
-            return entry != null && entry.Text != null;
+            return entry?.Text != null;
         }
     }
 }

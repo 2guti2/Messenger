@@ -14,7 +14,6 @@ namespace LogServer
     {
         static void Main(string[] args)
         {
-            string serverIp = Utillities.GetServerIpFromConfigFile();
             string storeServerIp = Utillities.GetStoreServerIpFromConfigFile();
             int storeServerPort = Utillities.GetStoreServerPortFromConfigFile();
             var store =
@@ -26,7 +25,7 @@ namespace LogServer
             CoreController.Build(store);
             BusinessController businessController = CoreController.BusinessControllerInstance();
 
-            var msmqServer = new MessageQueueServer(serverIp, businessController);
+            var msmqServer = new MessageQueueServer(businessController);
             var msmqServerThread = new Thread(() => msmqServer.Start());
             msmqServerThread.Start();
 
