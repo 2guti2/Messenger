@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Business
+namespace Protocol
 {
     public class FileWriter
     {
@@ -8,6 +8,9 @@ namespace Business
         
         public FileWriter(string path)
         {
+            string fileDirectory = Path.GetDirectoryName(path);
+            if (!Directory.Exists(fileDirectory))
+                Directory.CreateDirectory(fileDirectory);
             stream = File.OpenWrite(path);
         }
 

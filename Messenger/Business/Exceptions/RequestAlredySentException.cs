@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Business.Exceptions
+﻿namespace Business.Exceptions
 {
     public class RequestAlredySentException : BusinessException
     {

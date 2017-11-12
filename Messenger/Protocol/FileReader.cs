@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Business
+namespace Protocol
 {
     public class FileReader
     {
@@ -33,6 +33,11 @@ namespace Business
                     yield break;
                 }
             }
+        }
+
+        public void CloseFile()
+        {
+            stream.Close();
         }
 
         public int ExpectedChunks()
