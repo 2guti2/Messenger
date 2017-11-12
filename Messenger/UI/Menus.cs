@@ -19,6 +19,10 @@ namespace UI
 
         public static int MapInputWithMenuItemsList(List<string> options)
         {
+            if (options.Count == 0)
+            {
+                throw new ArgumentException();
+            }
             for (var i = 0; i < options.Count; i++)
             {
                 Console.WriteLine(i + 1 + " - " + options[i]);
