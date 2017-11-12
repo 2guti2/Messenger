@@ -67,7 +67,7 @@ namespace Client
             ClientUI.Clear();
         }
 
-        private bool ListConnectedUsers()
+        private void ListConnectedUsers()
         {
             bool serverHasClients;
             Connection connection = clientProtocol.ConnectToServer();
@@ -91,7 +91,7 @@ namespace Client
             }
             connection.Close();
 
-            return serverHasClients;
+            return;
         }
 
         private List<string> GetListOfAllClients()

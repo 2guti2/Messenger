@@ -44,11 +44,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileCopier.cs" />
+    <Compile Include="FileManager.cs" />
     <Compile Include="MessageQueueServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="ServerController.cs" />
+    <Compile Include="ServerLauncher.cs" />
+    <Compile Include="ServerPrompt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

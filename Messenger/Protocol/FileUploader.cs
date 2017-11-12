@@ -1,7 +1,4 @@
-﻿using System;
-using Business;
-
-namespace Protocol
+﻿namespace Protocol
 {
     public class FileUploader : FileStreamer
     {
@@ -21,6 +18,7 @@ namespace Protocol
                 conn.SendRawData(chunk);
                 ProgressMade();
             }
+            Reader.CloseFile();
             OperationCompleted();
         }
     }
