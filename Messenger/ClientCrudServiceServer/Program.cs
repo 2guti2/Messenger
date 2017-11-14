@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WcfServices;
 using Business;
 using Persistence;
+using System.Threading;
 
 namespace ClientCrudServiceServer
 {
@@ -25,7 +21,14 @@ namespace ClientCrudServiceServer
             CoreController.Build(store);
 
             WCFHost wcfHostService = new WCFHost();
-            wcfHostService.Start();
+            var wcfHostServiceThread = new Thread((() => wcfHostService.Start()));
+            wcfHostServiceThread.Start();
+
+            Console.WriteLine("Client CRUD Service Server running. Click any key to stop...");
+            Console.ReadKey();
+
+            wcfHostService.Stop();
+            wcfHostServiceThread.Abort();
         }
     }
 }

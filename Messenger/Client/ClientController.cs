@@ -10,7 +10,6 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using Business;
 using System.Threading;
-using Business.Log;
 using ShellProgressBar;
 
 namespace Client
@@ -27,8 +26,6 @@ namespace Client
         private string clientToken;
         private string clientUsername;
         private readonly string serverIp;
-        private Logger logger;
-        private Business.Logger bLogger;
 
         public ClientController()
         {
@@ -39,7 +36,6 @@ namespace Client
             string clientIp = GetClientIpFromConfigFile();
             int clientPort = GetClientPortFromConfigFile();
             clientProtocol = new ClientProtocol(serverIp, serverPort, clientIp, clientPort);
-            bLogger = new Business.Logger(serverIp);
         }
 
         public void DisconnectFromServer()
@@ -48,7 +44,6 @@ namespace Client
             connection.SendMessage(BuildRequest(Command.DisconnectUser));
             var response = new Response(connection.ReadMessage());
             Console.WriteLine(response.HadSuccess() ? "Disconnected" : response.ErrorMessage());
-            logger.LogAction(Command.DisconnectUser);
         }
 
         internal void LoopMenu()
@@ -77,8 +72,6 @@ namespace Client
             object[] request = BuildRequest(Command.ListOfConnectedUsers);
             connection.SendMessage(request);
 
-            logger.LogAction(Command.ListOfConnectedUsers);
-
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
@@ -103,8 +96,6 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListOfAllClients);
             connection.SendMessage(request);
-
-            logger.LogAction(Command.ListOfAllClients);
 
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
@@ -133,8 +124,6 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(request);
 
-            logger.LogAction(Command.FriendshipRequest);
-
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
@@ -159,8 +148,6 @@ namespace Client
             object[] request = BuildRequest(Command.ListMyFriends);
             connection.SendMessage(request);
 
-            logger.LogAction(Command.ListMyFriends);
-
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
             {
@@ -180,8 +167,6 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.ListMyFriends);
             connection.SendMessage(request);
-
-            logger.LogAction(Command.ListMyFriends);
 
             var response = new Response(connection.ReadMessage());
             if (response.HadSuccess())
@@ -239,8 +224,6 @@ namespace Client
             Connection conn = clientProtocol.ConnectToServer();
             conn.SendMessage(BuildRequest(Command.ConfirmFriendshipRequest, requestId));
 
-            logger.LogAction(Command.ConfirmFriendshipRequest);
-
             var response = new Response(conn.ReadMessage());
             if (response.HadSuccess())
             {
@@ -258,8 +241,6 @@ namespace Client
             Connection conn = clientProtocol.ConnectToServer();
             conn.SendMessage(BuildRequest(Command.RejectFriendshipRequest, requestId));
 
-            logger.LogAction(Command.RejectFriendshipRequest);
-
             var response = new Response(conn.ReadMessage());
             Console.WriteLine(response.HadSuccess() ? "Friendship request removed" : response.ErrorMessage());
             conn.Close();
@@ -269,8 +250,6 @@ namespace Client
         {
             Connection connection = clientProtocol.ConnectToServer();
             connection.SendMessage(BuildRequest(Command.GetFriendshipRequests));
-
-            logger.LogAction(Command.GetFriendshipRequests);
 
             var response = new Response(connection.ReadMessage());
 
@@ -299,16 +278,6 @@ namespace Client
                 {
                     clientToken = response.GetClientToken();
                     clientUsername = client.Username;
-                    logger = new Logger(clientUsername, serverIp);
-                    logger.LogAction(Command.Login);
-                    
-                    var entry = new LogEntry(new LoginEntry()
-                    {
-                        ClientUsername = clientUsername,
-                        Timestamp = DateTime.Now
-                    });
-
-                    bLogger.LogAction(entry);
 
                     Console.WriteLine(ClientUI.LoginSuccessful());
                 }
@@ -420,7 +389,6 @@ namespace Client
             Connection connection = clientProtocol.ConnectToServer();
             object[] request = BuildRequest(Command.SendMessage, friends[input], message);
             connection.SendMessage(request);
-            logger.LogAction(Command.SendMessage);
 
             var response = new Response(connection.ReadMessage());
             connection.Close();
@@ -541,8 +509,6 @@ namespace Client
             object[] request = BuildRequest(Command.GetConversation, friend);
             connection.SendMessage(request);
 
-            logger.LogAction(Command.GetConversation);
-
             var response = new Response(connection.ReadMessage());
             connection.Close();
 
@@ -580,8 +546,6 @@ namespace Client
                 Connection connection = clientProtocol.ConnectToServer();
                 connection.SendMessage(BuildRequest(Command.SendMessage, counterpartUsername, myAnswer));
 
-                logger.LogAction(Command.SendMessage);
-
                 var sendMessageResponse = new Response(connection.ReadMessage());
                 if (!sendMessageResponse.HadSuccess())
                     Console.WriteLine(sendMessageResponse.ErrorMessage());
@@ -611,8 +575,7 @@ namespace Client
                     if (readMessageResponse.HadSuccess())
                     {
                         messages = readMessageResponse.Messages();
-                        if (messages.Count > 0)
-                            logger.LogAction(Command.ReadMessage);
+
                         messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
                     }
                     else

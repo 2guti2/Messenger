@@ -9,11 +9,11 @@ namespace Server
     public class ServerController
     {
         private const string UploadFolder = "uploads";
-        private readonly BusinessController businessController;
+        public readonly BusinessController BusinessController;
 
         public ServerController(BusinessController businessController)
         {
-            this.businessController = businessController;
+            BusinessController = businessController;
         }
 
         public void ConnectClient(Connection conn, Request req)
@@ -21,7 +21,7 @@ namespace Server
             try
             {
                 var client = new Client(req.Username(), req.Password());
-                string token = businessController.Login(client);
+                string token = BusinessController.Login(client);
 
                 object[] response = string.IsNullOrEmpty(token)
                     ? BuildResponse(ResponseCode.NotFound, "Client not found")
@@ -40,7 +40,7 @@ namespace Server
             {
                 string username = req.Username();
                 Client loggedUser = CurrentClient(req);
-                Client receiver = businessController.FriendshipRequest(loggedUser, username);
+                Client receiver = BusinessController.FriendshipRequest(loggedUser, username);
                 if (receiver.HasFriend(loggedUser))
                     conn.SendMessage(BuildResponse(ResponseCode.Ok, "Friend added"));
                 else
@@ -61,7 +61,7 @@ namespace Server
             try
             {
                 Client loggedUser = CurrentClient(request);
-                List<Message> unreadMessages = businessController.UnreadMessages(loggedUser, request.Recipient());
+                List<Message> unreadMessages = BusinessController.UnreadMessages(loggedUser, request.Recipient());
                 var unreadMessagesString = new List<string>();
 
                 unreadMessages.ForEach(um => unreadMessagesString.Add(um.Content));
@@ -82,7 +82,7 @@ namespace Server
             try
             {
                 Client loggedUser = CurrentClient(request);
-                List<Client> friends = businessController.GetFriendsOf(loggedUser);
+                List<Client> friends = BusinessController.GetFriendsOf(loggedUser);
                 var clientFriends = new List<string[]>();
 
                 friends.ForEach(c => clientFriends.Add(new[] {c.Username, c.FriendsCount.ToString()}));
@@ -104,7 +104,7 @@ namespace Server
             try
             {
                 Client currentClient = CurrentClient(req);
-                string[][] requests = businessController.GetFriendshipRequests(currentClient);
+                string[][] requests = BusinessController.GetFriendshipRequests(currentClient);
                 object[] response = BuildResponse(ResponseCode.Ok, requests);
                 conn.SendMessage(response);
             }
@@ -121,7 +121,7 @@ namespace Server
                 Client currentClient = CurrentClient(req);
                 string requestId = req.FriendshipRequestId();
                 FriendshipRequest friendshipRequest =
-                    businessController.ConfirmFriendshipRequest(currentClient, requestId);
+                    BusinessController.ConfirmFriendshipRequest(currentClient, requestId);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok, friendshipRequest.Sender.Username));
             }
             catch (RecordNotFoundException e)
@@ -144,7 +144,7 @@ namespace Server
             {
                 Client currentClient = CurrentClient(req);
                 string requestId = req.FriendshipRequestId();
-                businessController.RejectFriendshipRequest(currentClient, requestId);
+                BusinessController.RejectFriendshipRequest(currentClient, requestId);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok));
             }
             catch (RecordNotFoundException e)
@@ -158,7 +158,7 @@ namespace Server
             try
             {
                 Client loggedUser = CurrentClient(request);
-                List<Client> connectedUsers = businessController.GetLoggedClients();
+                List<Client> connectedUsers = BusinessController.GetLoggedClients();
 
                 string[] connectedUsernames =
                     connectedUsers.Where(client => !client.Equals(loggedUser)).Select(c => c.Username)
@@ -181,7 +181,7 @@ namespace Server
             try
             {
                 Client loggedUser = CurrentClient(request);
-                List<Client> clients = businessController.GetClients();
+                List<Client> clients = BusinessController.GetClients();
 
                 string[] clientsUsernames =
                     clients.Where(client => !client.Equals(loggedUser)).Select(c => c.Username)
@@ -201,7 +201,7 @@ namespace Server
 
         public void DisconnectUser(Connection conn, Request request)
         {
-            businessController.DisconnectClient(request.UserToken());
+            BusinessController.DisconnectClient(request.UserToken());
             conn.SendMessage(BuildResponse(ResponseCode.Ok, "Client disconnected"));
         }
 
@@ -221,7 +221,7 @@ namespace Server
 
                 string message = request.Message;
 
-                businessController.SendMessage(usernameFrom, usernameTo, message);
+                BusinessController.SendMessage(usernameFrom, usernameTo, message);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok));
             }
             catch (RecordNotFoundException e)
@@ -239,7 +239,7 @@ namespace Server
             try
             {
                 Client loggedUser = CurrentClient(request);
-                List<Message> allMessages = businessController.AllMessages(loggedUser, request.Recipient());
+                List<Message> allMessages = BusinessController.AllMessages(loggedUser, request.Recipient());
 
                 var messagesString = new List<string[]>();
 
@@ -310,7 +310,7 @@ namespace Server
 
         private Client CurrentClient(Request req)
         {
-            return businessController.GetLoggedClient(req.UserToken());
+            return BusinessController.GetLoggedClient(req.UserToken());
         }
 
         private void AuthenticateClient(Request req)

@@ -7,10 +7,12 @@ namespace Server
     public class Router
     {
         private readonly ServerController serverController;
+        private LogRouter logRouter;
 
         public Router(ServerController serverController)
         {
             this.serverController = serverController;
+            logRouter = new LogRouter();
         }
 
         public void Handle(Connection conn)
@@ -24,6 +26,7 @@ namespace Server
                 {
                     case Command.Login:
                         serverController.ConnectClient(conn, request);
+                        logRouter.LogAction(Command.Login, request.Username());
                         break;
                     case Command.FriendshipRequest:
                         serverController.FriendshipRequest(conn, request);
@@ -65,7 +68,9 @@ namespace Server
                         serverController.DownloadFile(conn, request);
                         break;
                     case Command.DisconnectUser:
+                        string username = serverController.BusinessController.GetLoggedClient(request.UserToken())?.Username;
                         serverController.DisconnectUser(conn, request);
+                        logRouter.LogAction(Command.DisconnectUser, username);
                         break;
                     default:
                         serverController.InvalidCommand(conn);

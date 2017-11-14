@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Business
+namespace Business.Log
 {
-    public class LoginEntry : LogEntryAttributes
+    public class LogoutEntry : LogEntryAttributes
     {
         public override string ToString()
         {
-            return $"{Timestamp}: {ClientUsername} logged in.";
+            return $"{Timestamp}: {ClientUsername} logged out.";
         }
     }
 }
