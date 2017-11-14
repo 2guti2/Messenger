@@ -11,11 +11,20 @@ namespace LogServer
         private bool isServerRunning;
         private BusinessController businessController;
 
+        public delegate void NewEntryEventHandler();
+
+        public event NewEntryEventHandler NewEntry;
+
         public MessageQueueServer(BusinessController businessController)
         {
             isServerRunning = true;
             QueuePath = QueueUtillities.QueueCreationPath();
             this.businessController = businessController;
+        }
+
+        protected virtual void OnNewEntry(EventArgs e)
+        {
+            NewEntry?.Invoke();
         }
 
         public string QueuePath { get; }
@@ -40,7 +49,10 @@ namespace LogServer
                 catch (MessageQueueException) { }
 
                 if (IsValidEntry(entry))
+                {
                     businessController.AddLogEntry(entry);
+                    OnNewEntry(new EventArgs());
+                }
             }
         }
 

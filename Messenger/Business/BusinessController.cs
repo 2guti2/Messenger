@@ -59,6 +59,11 @@ namespace Business
             return Store.GetLogEntries();
         }
 
+        public LogEntry GetLastLogEntry()
+        {
+            return Store.GetLastLogEntry();
+        }
+
         public bool CreateClient(Client client)
         {
             if (!Store.ClientExists(client))

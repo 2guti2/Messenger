@@ -34,10 +34,7 @@ namespace LogServer
             Console.Clear();
             Console.WriteLine("Log server running.");
             Console.WriteLine("-------------------");
-            while (true)
-            {
-                msmqClient.PrintLogs();    
-            }
+            while (true) { }
         }
     }
 }

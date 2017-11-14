@@ -21,5 +21,6 @@ namespace Business
         void RejectRequest(Client currentClient, string requestId);
         void AddLogEntry(LogEntry entryAttributes);
         List<LogEntry> GetLogEntries();
+        LogEntry GetLastLogEntry();
     }
 }

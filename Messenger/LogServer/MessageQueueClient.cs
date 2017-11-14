@@ -16,25 +16,14 @@ namespace LogServer
         public MessageQueueClient(MessageQueueServer msmqServer, BusinessController businessController)
         {
             this.msmqServer = msmqServer;
+            msmqServer.NewEntry += new MessageQueueServer.NewEntryEventHandler(HandleNewEntry);
             logEntries = new List<LogEntry>();
             this.businessController = businessController;
         }
 
-        public void PrintLogs()
+        public void HandleNewEntry()
         {
-            List<LogEntry> newEntries = businessController.GetLogEntries();
-
-            if (newEntries != null)
-            {
-                foreach (LogEntry newEntry in newEntries)
-                {
-                    if (!logEntries.Contains(newEntry))
-                    {
-                        Console.WriteLine(newEntry);
-                        logEntries.Add(newEntry);
-                    }
-                }
-            }
+            Console.WriteLine(businessController.GetLastLogEntry());
         }
     }
 }

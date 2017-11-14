@@ -203,5 +203,13 @@ namespace Persistence
                 return LogEntries;
             }
         }
+
+        public LogEntry GetLastLogEntry()
+        {
+            lock (logLocker)
+            {
+                return LogEntries.Last();
+            }
+        }
     }
 }
