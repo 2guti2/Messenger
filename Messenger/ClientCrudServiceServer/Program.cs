@@ -12,12 +12,21 @@ namespace ClientCrudServiceServer
         {
             string storeServerIp = Utillities.GetStoreServerIpFromConfigFile();
             int storeServerPort = Utillities.GetStoreServerPortFromConfigFile();
-            var store = 
-                (Store)Activator.GetObject
-                (
-                    typeof(Store), 
-                    $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}"
-                );
+
+            Store store = null;
+            try
+            {
+                store = (Store)Activator.GetObject(typeof(Store),
+                    $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+                store.GetClients();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Store isn't available. Closing app...");
+                Thread.Sleep(5000);
+                Environment.Exit(0);
+            }
+
             CoreController.Build(store);
 
             WCFHost wcfHostService = new WCFHost();

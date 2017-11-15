@@ -16,8 +16,19 @@ namespace Server
             string storeServerIp = GetStoreServerIpFromConfigFile();
             int storeServerPort = GetStoreServerPortFromConfigFile();
 
-            //TODO:MG try catch this
-            var store = (Store)Activator.GetObject(typeof(Store), $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+            Store store = null;
+            try
+            {
+                store = (Store) Activator.GetObject(typeof(Store),
+                    $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+                store.GetClients();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Store isn't available. Closing app...");
+                Thread.Sleep(5000);
+                Environment.Exit(0);
+            }
 
             CoreController.Build(store);
             BusinessController businessController = CoreController.BusinessControllerInstance();

@@ -24,6 +24,8 @@ namespace ClientCrudServiceClient
 
         public void Menu()
         {
+            Console.WriteLine("User CRUD Client");
+            Console.WriteLine("----------------");
             int option = Menus.MapInputWithMenuItemsList(menuOptions);
             MapOptionToAction(option);
         }
@@ -53,7 +55,8 @@ namespace ClientCrudServiceClient
             {
                 ClientDto clientToDelete = AskExistingClientInfo();
 
-                clientCrudServiceClient.DeleteClient(clientToDelete);
+                if(!clientCrudServiceClient.DeleteClient(clientToDelete))
+                    Console.WriteLine("Client does not exist or is connected.");
             }
             catch (IndexOutOfRangeException)
             {

@@ -31,7 +31,7 @@ namespace Business
 
         public bool DeleteClient(Client client)
         {
-            if (!Store.ClientExists(client))
+            if (!Store.ClientExists(client) || Server.IsClientConnected(client))
                 return false;
 
             Store.DeleteClient(client);
