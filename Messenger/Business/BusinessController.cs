@@ -1,5 +1,6 @@
 ﻿using Business.Exceptions;
 using System.Collections.Generic;
+using System;
 
 namespace Business
 {
@@ -25,12 +26,11 @@ namespace Business
                 throw new ClientAlreadyConnectedException();
 
             return isValidPassword ? Server.ConnectClient(storedClient) : "";
-
         }
 
         public bool DeleteClient(Client client)
         {
-            if (!Store.ClientExists(client))
+            if (!Store.ClientExists(client) || Server.IsClientConnected(client))
                 return false;
 
             Store.DeleteClient(client);
@@ -46,6 +46,21 @@ namespace Business
             Store.UpdateClient(existingClient, newClient);
 
             return true;
+        }
+
+        public void AddLogEntry(LogEntry entry)
+        {
+            Store.AddLogEntry(entry);
+        }
+
+        public List<LogEntry> GetLogEntries()
+        {
+            return Store.GetLogEntries();
+        }
+
+        public LogEntry GetLastLogEntry()
+        {
+            return Store.GetLastLogEntry();
         }
 
         public bool CreateClient(Client client)
@@ -107,9 +122,9 @@ namespace Business
             return Store.ConfirmFriendshipRequest(currentClient, requestId);
         }
 
-        public void RejectFriendshipRequest(Client currentClient, string requestId)
+        public FriendshipRequest RejectFriendshipRequest(Client currentClient, string requestId)
         {
-            Store.RejectRequest(currentClient, requestId);
+            return Store.RejectRequest(currentClient, requestId);
         }
 
         public void SendMessage(string usernameFrom, string usernameTo, string message)

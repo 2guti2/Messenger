@@ -9,14 +9,17 @@ namespace Persistence
     public class Store : MarshalByRefObject, IStore
     {
         private List<Client> Clients { get; set; }
+        private List<LogEntry> LogEntries { get; set; }
 
         private readonly object messagesLocker = new object();
         private readonly object loginLocker = new object();
         private readonly object friendshipLocker = new object();
+        private readonly object logLocker = new object();
 
         public Store()
         {
             Clients = new List<Client>();
+            LogEntries = new List<LogEntry>();
         }
 
         public bool ClientExists(Client client)
@@ -176,12 +179,36 @@ namespace Persistence
             }
         }
 
-        public void RejectRequest(Client currentClient, string requestId)
+        public FriendshipRequest RejectRequest(Client currentClient, string requestId)
         {
             lock (friendshipLocker)
             {
                 Client storedClient = GetClient(currentClient.Username);
-                storedClient.RejectRequest(requestId);
+                return storedClient.RejectRequest(requestId);
+            }
+        }
+
+        public void AddLogEntry(LogEntry entry)
+        {
+            lock (logLocker)
+            {
+                LogEntries.Add(entry);
+            }
+        }
+
+        public List<LogEntry> GetLogEntries()
+        {
+            lock (logLocker)
+            {
+                return LogEntries;
+            }
+        }
+
+        public LogEntry GetLastLogEntry()
+        {
+            lock (logLocker)
+            {
+                return LogEntries.Last();
             }
         }
     }

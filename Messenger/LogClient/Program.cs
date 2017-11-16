@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Business;
 using Persistence;
 
-namespace LogServer
+namespace LogClient
 {
     class Program
     {
@@ -16,6 +15,8 @@ namespace LogServer
         {
             string storeServerIp = Utillities.GetStoreServerIpFromConfigFile();
             int storeServerPort = Utillities.GetStoreServerPortFromConfigFile();
+            string logServerIp = Utillities.GetLogServerIpFromConfigFile();
+
             Store store = null;
             try
             {
@@ -29,15 +30,16 @@ namespace LogServer
                 Thread.Sleep(5000);
                 Environment.Exit(0);
             }
+
             CoreController.Build(store);
-            BusinessController businessController = CoreController.BusinessControllerInstance();
+            BusinessController bc = CoreController.BusinessControllerInstance();
 
-            var msmqServer = new MessageQueueServer(businessController);
-            var msmqServerThread = new Thread(() => msmqServer.Start());
-            msmqServerThread.Start();
-
-            Console.Clear();
-            Console.WriteLine("Log server running.");
+            var msmqClient = new MessageQueueClient(bc);
+            while (true)
+            {
+                Console.Clear();
+                msmqClient.Menu();
+            }
         }
     }
 }

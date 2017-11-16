@@ -9,12 +9,13 @@ namespace ClientCrudServiceClient
     public class ClientCRUDServiceClient
     {
         private const string UsernameTakenErrorMessage = "\nUsername taken";
-
-        private WcfServices.ClientCRUDServiceClient clientCrudServiceClient;
+        private const string ThereAreNoClientsMessage = "There are no clients...";
         private List<string> menuOptions = new List<string>()
         {
             "Create", "Update", "Delete", "Exit"
         };
+
+        private WcfServices.ClientCRUDServiceClient clientCrudServiceClient;
 
         public ClientCRUDServiceClient()
         {
@@ -23,6 +24,8 @@ namespace ClientCrudServiceClient
 
         public void Menu()
         {
+            Console.WriteLine("User CRUD Client");
+            Console.WriteLine("----------------");
             int option = Menus.MapInputWithMenuItemsList(menuOptions);
             MapOptionToAction(option);
         }
@@ -48,23 +51,43 @@ namespace ClientCrudServiceClient
 
         private void DeleteClient()
         {
-            ClientDto clientToDelete = AskExistingClientInfo();
+            try
+            {
+                ClientDto clientToDelete = AskExistingClientInfo();
 
-            clientCrudServiceClient.DeleteClient(clientToDelete);
+                if(!clientCrudServiceClient.DeleteClient(clientToDelete))
+                    Console.WriteLine("Client does not exist or is connected.");
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Console.WriteLine(ThereAreNoClientsMessage);
+                Console.ReadKey();
+            }
         }
 
         private void UpdateClient()
         {
-            ClientDto existingClient = AskExistingClientInfo();
+            try
+            {
+                ClientDto existingClient = AskExistingClientInfo();
 
-            ClientDto editedClient = AskNewClientInfo();
+                ClientDto editedClient = AskNewClientInfo();
 
-            clientCrudServiceClient.UpdateClient(existingClient, editedClient);
+                clientCrudServiceClient.UpdateClient(existingClient, editedClient);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Console.WriteLine(ThereAreNoClientsMessage);
+                Console.ReadKey();
+            }
         }
 
         private ClientDto AskExistingClientInfo()
         {
             List<ClientDto> existingClients = clientCrudServiceClient.GetClients().ToList();
+
+            if(existingClients.Count == 0)
+                throw new IndexOutOfRangeException();
 
             var existingClientsUsernames = new List<string>();
 

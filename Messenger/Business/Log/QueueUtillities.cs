@@ -9,15 +9,20 @@
         public static string Path(string serverIp)
         {
             return  serverIp.Equals(Localhost)
-                    ? $".\\private$\\{Name}"
-                    : $"FormatName:Direct=TCP:{serverIp}\\private$\\{Name}";
+                    ? $@".\private$\{Name}"
+                    : $@"FormatName:Direct=TCP:{serverIp}\private$\{Name}";
         }
 
-        public static void SaveEntry(LogEntry entry)
+        public static string QueueCreationPath()
+        {
+            return $@".\private$\{Name}";
+        }
+
+        public static void SaveEntry(LogEntryAttributes entryAttributes)
         {
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(ServerLogFileName, true))
             {
-                file.WriteLine(entry);
+                file.WriteLine(entryAttributes);
             }
         }
     }

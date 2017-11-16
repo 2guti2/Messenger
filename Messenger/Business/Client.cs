@@ -76,13 +76,15 @@ namespace Business
             return request;
         }
 
-        public void RejectRequest(string requestId)
+        public FriendshipRequest RejectRequest(string requestId)
         {
             FriendshipRequest request = FriendshipRequests.Find(r => r.Id.ToString().Equals(requestId));
             if (request == null)
                 throw new RecordNotFoundException("The request was not found");
 
             FriendshipRequests.Remove(request);
+
+            return request;
         }
 
         private FriendshipRequest RequestFromClient(Client client)

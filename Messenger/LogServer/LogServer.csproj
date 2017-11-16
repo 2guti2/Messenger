@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MessageQueueClient.cs" />
     <Compile Include="MessageQueueServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,6 +55,10 @@
     <ProjectReference Include="..\Business\Business.csproj">
       <Project>{e764883e-01cc-4f85-b425-53a338c66862}</Project>
       <Name>Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Persistence\Persistence.csproj">
+      <Project>{9cc03d3b-2a1b-4d8f-8764-ea8c6e934871}</Project>
+      <Name>Persistence</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="FileCopier.cs" />
     <Compile Include="FileManager.cs" />
+    <Compile Include="LogRouter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Router.cs" />

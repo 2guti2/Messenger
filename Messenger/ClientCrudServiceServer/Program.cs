@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WcfServices;
 using Business;
 using Persistence;
+using System.Threading;
 
 namespace ClientCrudServiceServer
 {
@@ -14,25 +10,34 @@ namespace ClientCrudServiceServer
     {
         static void Main(string[] args)
         {
-            string storeServerIp = GetStoreServerIpFromConfigFile();
-            int storeServerPort = GetStoreServerPortFromConfigFile();
-            var store = (Store)Activator.GetObject(typeof(Store), $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+            string storeServerIp = Utillities.GetStoreServerIpFromConfigFile();
+            int storeServerPort = Utillities.GetStoreServerPortFromConfigFile();
+
+            Store store = null;
+            try
+            {
+                store = (Store)Activator.GetObject(typeof(Store),
+                    $"tcp://{storeServerIp}:{storeServerPort}/{StoreUtillities.StoreName}");
+                store.GetClients();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Store isn't available. Closing app...");
+                Thread.Sleep(5000);
+                Environment.Exit(0);
+            }
+
             CoreController.Build(store);
 
             WCFHost wcfHostService = new WCFHost();
-            wcfHostService.Start();
-        }
+            var wcfHostServiceThread = new Thread((() => wcfHostService.Start()));
+            wcfHostServiceThread.Start();
 
-        private static string GetStoreServerIpFromConfigFile()
-        {
-            var appSettings = new AppSettingsReader();
-            return (string)appSettings.GetValue("StoreServerIp", typeof(string));
-        }
+            Console.WriteLine("Client CRUD Service Server running. Click any key to stop...");
+            Console.ReadKey();
 
-        private static int GetStoreServerPortFromConfigFile()
-        {
-            var appSettings = new AppSettingsReader();
-            return (int)appSettings.GetValue("StoreServerPort", typeof(int));
+            wcfHostService.Stop();
+            wcfHostServiceThread.Abort();
         }
     }
 }
