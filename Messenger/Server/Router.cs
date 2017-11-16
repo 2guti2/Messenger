@@ -26,7 +26,7 @@ namespace Server
                 {
                     case Command.Login:
                         serverController.ConnectClient(conn, request);
-                        logRouter.LogAction(Command.Login, request.Username());
+                        logRouter.LogLogin(request.Username());
                         break;
                     case Command.FriendshipRequest:
                         serverController.FriendshipRequest(conn, request);
@@ -59,18 +59,22 @@ namespace Server
                         serverController.GetConversation(conn, request);
                         break;                    
                     case Command.UploadFile:
+                        string uploadUsername = GetClientUsernameFromRequest(request);
                         serverController.UploadFile(conn, request);
+                        logRouter.LogUploadFile(uploadUsername);
                         break;
                     case Command.ListClientFiles:
                         serverController.ListClientFiles(conn, request);
                         break;
                     case Command.DownloadFile:
+                        string downloadUsername = GetClientUsernameFromRequest(request);
                         serverController.DownloadFile(conn, request);
+                        logRouter.LogDownloadFile(downloadUsername);
                         break;
                     case Command.DisconnectUser:
-                        string username = serverController.BusinessController.GetLoggedClient(request.UserToken())?.Username;
+                        string logoutUsername = GetClientUsernameFromRequest(request);
                         serverController.DisconnectUser(conn, request);
-                        logRouter.LogAction(Command.DisconnectUser, username);
+                        logRouter.LogLogout(logoutUsername);
                         break;
                     default:
                         serverController.InvalidCommand(conn);
@@ -94,6 +98,11 @@ namespace Server
                     Console.WriteLine("Failed to close connection.");
                 }
             }
+        }
+
+        private string GetClientUsernameFromRequest(Request req)
+        {
+            return serverController.BusinessController.GetLoggedClient(req.UserToken())?.Username;
         }
     }
 }

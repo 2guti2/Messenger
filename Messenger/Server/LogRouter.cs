@@ -17,77 +17,60 @@ namespace Server
             logger = new Logger(logServerIp);
         }
 
-        public void LogAction(Command command, string username)
+        public void LogLogin(string username)
         {
-            switch (command)
-            {
-                case Command.Login:
-                    var loginEntry = new LogEntry
-                    (
-                        new LoginEntry()
-                        {
-                            ClientUsername = username,
-                            Timestamp = DateTime.Now
-                        }
-                    );
+            var loginEntry = new LogEntry
+            (
+                new LoginEntry()
+                {
+                    ClientUsername = username,
+                    Timestamp = DateTime.Now
+                }
+            );
 
-                    logger.LogAction(loginEntry);
-                    break;
+            logger.LogAction(loginEntry);
+        }
 
-                case Command.FriendshipRequest:
+        public void LogLogout(string username)
+        {
+            var logoutEntry = new LogEntry
+            (
+                new LogoutEntry()
+                {
+                    ClientUsername = username,
+                    Timestamp = DateTime.Now
+                }
+            );
 
-                    break;
+            logger.LogAction(logoutEntry);
+        }
 
-                case Command.ListOfConnectedUsers:
+        internal void LogUploadFile(string uploadUsername)
+        {
+            var uploadFileEntry = new LogEntry
+            (
+                new UploadFileEntry()
+                {
+                    ClientUsername = uploadUsername,
+                    Timestamp = DateTime.Now
+                }
+            );
 
-                    break;
-                case Command.ListOfAllClients:
+            logger.LogAction(uploadFileEntry);
+        }
 
-                    break;
-                case Command.ListMyFriends:
+        internal void LogDownloadFile(string downloadUsername)
+        {
+            var downloadFileEntry = new LogEntry
+            (
+                new DownloadFileEntry()
+                {
+                    ClientUsername = downloadUsername,
+                    Timestamp = DateTime.Now
+                }
+            );
 
-                    break;
-                case Command.GetFriendshipRequests:
-
-                    break;
-                case Command.ConfirmFriendshipRequest:
-
-                    break;
-                case Command.RejectFriendshipRequest:
-
-                    break;
-                case Command.SendMessage:
-
-                    break;
-                case Command.ReadMessage:
-
-                    break;
-                case Command.GetConversation:
-
-                    break;
-                case Command.UploadFile:
-
-                    break;
-                case Command.ListClientFiles:
-
-                    break;
-                case Command.DownloadFile:
-
-                    break;
-                case Command.DisconnectUser:
-                    
-                    var logoutEntry = new LogEntry
-                    (
-                        new LogoutEntry()
-                        {
-                            ClientUsername = username,
-                            Timestamp = DateTime.Now
-                        }
-                    );
-
-                    logger.LogAction(logoutEntry);
-                    break;
-            }
+            logger.LogAction(downloadFileEntry);
         }
     }
 }
