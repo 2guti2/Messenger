@@ -9,10 +9,12 @@ namespace Server
     {
         private BusinessController controller;
         private readonly FileManager fileManager = new FileManager();
+        private LogRouter logRouter;
 
         public ServerPrompt(BusinessController businessController)
         {
             controller = businessController;
+            logRouter = new LogRouter();
         }
 
         public void PromptUserForAction()
@@ -46,15 +48,19 @@ namespace Server
             {
                 case 1:
                     ListAllClients();
+                    logRouter.LogListOfAllClients();
                     break;
                 case 2:
                     ListConnectedClients();
+                    logRouter.LogListOfConnectedUsers();
                     break;
                 case 3:
                     fileManager.UploadFile();
+                    logRouter.LogUploadFile();
                     break;
                 case 4:
                     fileManager.DownloadFile();
+                    logRouter.LogDownloadFile();
                     break;
             }
         }

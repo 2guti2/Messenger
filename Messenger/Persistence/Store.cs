@@ -179,12 +179,12 @@ namespace Persistence
             }
         }
 
-        public void RejectRequest(Client currentClient, string requestId)
+        public FriendshipRequest RejectRequest(Client currentClient, string requestId)
         {
             lock (friendshipLocker)
             {
                 Client storedClient = GetClient(currentClient.Username);
-                storedClient.RejectRequest(requestId);
+                return storedClient.RejectRequest(requestId);
             }
         }
 

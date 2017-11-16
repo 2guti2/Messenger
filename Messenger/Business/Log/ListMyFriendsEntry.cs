@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Business.Log
 {
-    public class DownloadFileEntry : LogEntryAttributes
+    public class ListMyFriendsEntry : LogEntryAttributes
     {
         public override string ToString()
         {
-            return $"{Timestamp}: " + (ClientUsername ?? "Chat Server") + " downloaded a file";
+            return $"{Timestamp}: {ClientUsername} listed his/her friends.";
         }
     }
 }

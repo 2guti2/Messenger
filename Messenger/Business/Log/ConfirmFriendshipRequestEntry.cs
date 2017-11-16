@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Business.Log
 {
-    public class SendMessageEntry : LogEntryAttributes
+    public class ConfirmFriendshipRequestEntry : LogEntryAttributes
     {
         public string SenderUsername { get; set; }
-        public string RecipientUsername { get; set; }
+        public string ConfirmerUsername { get; set; }
 
         public override string ToString()
         {
-            return $"{Timestamp}: {SenderUsername} sent a message to {RecipientUsername}.";
+            return $"{Timestamp}: {ConfirmerUsername} confirmed a friendship request from {SenderUsername}.";
         }
     }
 }

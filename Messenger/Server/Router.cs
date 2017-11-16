@@ -29,28 +29,42 @@ namespace Server
                         logRouter.LogLogin(request.Username());
                         break;
                     case Command.FriendshipRequest:
+                        string friendUsernameSendingRequest = GetClientUsernameFromRequest(request);
+                        string friendUsernameReceivingRequest = request.Username();
                         serverController.FriendshipRequest(conn, request);
+                        logRouter.LogFriendshipRequest(friendUsernameSendingRequest, friendUsernameReceivingRequest);
                         break;
                     case Command.ListOfConnectedUsers:
+                        string connectedUsersClientUsername = GetClientUsernameFromRequest(request);
                         serverController.ListConnectedUsers(conn, request);
+                        logRouter.LogListOfConnectedUsers(connectedUsersClientUsername);
                         break;
                     case Command.ListOfAllClients:
+                        string allClientsClientUsername = GetClientUsernameFromRequest(request);
                         serverController.ListAllUsers(conn, request);
+                        logRouter.LogListOfAllClients(allClientsClientUsername);
                         break;
                     case Command.ListMyFriends:
+                        string myFriendsClientUsername = GetClientUsernameFromRequest(request);
                         serverController.ListMyFriends(conn, request);
+                        logRouter.LogListMyFriends(myFriendsClientUsername);
                         break;
                     case Command.GetFriendshipRequests:
                         serverController.GetFriendshipRequests(conn, request);
                         break;
                     case Command.ConfirmFriendshipRequest:
-                        serverController.ConfirmFriendshipRequest(conn, request);
+                        FriendshipRequest fr = serverController.ConfirmFriendshipRequest(conn, request);
+                        logRouter.LogConfirmationOfFriendshipRequest(fr);
                         break;
                     case Command.RejectFriendshipRequest:
-                        serverController.RejectFriendshipRequest(conn, request);
+                        FriendshipRequest friendshipRequest = serverController.RejectFriendshipRequest(conn, request);
+                        logRouter.LogRejectionOfFriendshipRequest(friendshipRequest);
                         break;
                     case Command.SendMessage:
+                        string senderUsername = GetClientUsernameFromRequest(request);
+                        string recipientUsername = request.Recipient();
                         serverController.SendMessage(conn, request);
+                        logRouter.LogSendMessage(senderUsername, recipientUsername);
                         break;
                     case Command.ReadMessage:
                         serverController.ReadMessage(conn, request);

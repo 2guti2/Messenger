@@ -114,13 +114,14 @@ namespace Server
             }
         }
 
-        public void ConfirmFriendshipRequest(Connection conn, Request req)
+        public FriendshipRequest ConfirmFriendshipRequest(Connection conn, Request req)
         {
+            FriendshipRequest friendshipRequest = null;
             try
             {
                 Client currentClient = CurrentClient(req);
                 string requestId = req.FriendshipRequestId();
-                FriendshipRequest friendshipRequest =
+                friendshipRequest =
                     BusinessController.ConfirmFriendshipRequest(currentClient, requestId);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok, friendshipRequest.Sender.Username));
             }
@@ -136,21 +137,25 @@ namespace Server
             {
                 conn.SendMessage(BuildResponse(ResponseCode.Forbidden, e.Message));
             }
+
+            return friendshipRequest;
         }
 
-        public void RejectFriendshipRequest(Connection conn, Request req)
+        public FriendshipRequest RejectFriendshipRequest(Connection conn, Request req)
         {
+            FriendshipRequest fr = null;
             try
             {
                 Client currentClient = CurrentClient(req);
                 string requestId = req.FriendshipRequestId();
-                BusinessController.RejectFriendshipRequest(currentClient, requestId);
+                fr = BusinessController.RejectFriendshipRequest(currentClient, requestId);
                 conn.SendMessage(BuildResponse(ResponseCode.Ok));
             }
             catch (RecordNotFoundException e)
             {
                 conn.SendMessage(BuildResponse(ResponseCode.NotFound, e.Message));
             }
+            return fr;
         }
 
         public void ListConnectedUsers(Connection conn, Request request)
@@ -308,7 +313,7 @@ namespace Server
             }
         }
 
-        private Client CurrentClient(Request req)
+        public Client CurrentClient(Request req)
         {
             return BusinessController.GetLoggedClient(req.UserToken());
         }

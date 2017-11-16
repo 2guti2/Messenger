@@ -18,7 +18,7 @@ namespace Business
         void UpdateClient(Client existingClient, Client newClient);
         Client FriendshipRequest(Client sender, string receiverUsername);
         FriendshipRequest ConfirmFriendshipRequest(Client currentClient, string requestId);
-        void RejectRequest(Client currentClient, string requestId);
+        FriendshipRequest RejectRequest(Client currentClient, string requestId);
         void AddLogEntry(LogEntry entryAttributes);
         List<LogEntry> GetLogEntries();
         LogEntry GetLastLogEntry();

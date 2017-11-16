@@ -26,7 +26,6 @@ namespace Business
                 throw new ClientAlreadyConnectedException();
 
             return isValidPassword ? Server.ConnectClient(storedClient) : "";
-
         }
 
         public bool DeleteClient(Client client)
@@ -123,9 +122,9 @@ namespace Business
             return Store.ConfirmFriendshipRequest(currentClient, requestId);
         }
 
-        public void RejectFriendshipRequest(Client currentClient, string requestId)
+        public FriendshipRequest RejectFriendshipRequest(Client currentClient, string requestId)
         {
-            Store.RejectRequest(currentClient, requestId);
+            return Store.RejectRequest(currentClient, requestId);
         }
 
         public void SendMessage(string usernameFrom, string usernameTo, string message)

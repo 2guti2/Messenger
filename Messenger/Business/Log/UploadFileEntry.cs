@@ -10,7 +10,7 @@ namespace Business.Log
     {
         public override string ToString()
         {
-            return $"{Timestamp}: {ClientUsername} uploaded a file.";
+            return $"{Timestamp}: " + (ClientUsername ?? "Chat Server") + " uploaded a file.";
         }
     }
 }
