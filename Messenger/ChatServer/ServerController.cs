@@ -4,7 +4,7 @@ using Business;
 using Business.Exceptions;
 using Protocol;
 
-namespace Server
+namespace ChatServer
 {
     public class ServerController
     {

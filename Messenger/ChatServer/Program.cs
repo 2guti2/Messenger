@@ -4,7 +4,7 @@ using Business;
 using Persistence;
 using System;
 
-namespace Server
+namespace ChatServer
 {
     class Program
     {

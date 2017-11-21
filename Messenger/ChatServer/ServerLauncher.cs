@@ -3,7 +3,7 @@ using System.Threading;
 using Business;
 using Protocol;
 
-namespace Server
+namespace ChatServer
 {
     public class ServerLauncher
     {

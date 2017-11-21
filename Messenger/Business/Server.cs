@@ -34,7 +34,7 @@ namespace Business
 
         public bool IsClientConnected(Client client)
         {
-            return ConnectedClients.Exists(session => session.Client.Equals(client));
+            return store.IsClientConnected(client);
         }
 
         public void DisconnectClient(string token)
@@ -49,15 +49,7 @@ namespace Business
         {
             List<Client> storedClients = store.GetClients();
 
-            List<Client> connectedClients = new List<Client>();
-
-            foreach (Client storedClient in storedClients)
-            {
-                if(storedClient.Sessions.Count > 0)
-                    connectedClients.Add(storedClient);
-            }
-
-            return storedClients;
+            return storedClients.Where(storedClient => storedClient.Sessions.Count > 0).ToList();
         }
     }
 }

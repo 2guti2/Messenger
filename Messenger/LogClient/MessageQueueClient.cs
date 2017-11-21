@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Business;
-using Persistence;
 using UI;
 
 namespace LogClient

@@ -14,6 +14,7 @@ namespace Business
         List<Client> GetClients();
         void DeleteClient(Client client);
         void ConnectClient(Client client, Session session);
+        bool IsClientConnected(Client client);
         void DisconnectClient(string token);
         void UpdateClient(Client existingClient, Client newClient);
         Client FriendshipRequest(Client sender, string receiverUsername);

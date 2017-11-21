@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Business;
 using UI;
 
-namespace Server
+namespace ChatServer
 {
     public class ServerPrompt
     {

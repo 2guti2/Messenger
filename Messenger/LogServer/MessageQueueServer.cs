@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Messaging;
 using Business;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace LogServer
 {

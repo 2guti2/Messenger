@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using Protocol;
 using UI;
 
-namespace Server
+namespace ChatServer
 {
     public class FileManager
     {

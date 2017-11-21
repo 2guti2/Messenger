@@ -137,6 +137,12 @@ namespace Persistence
             }
         }
 
+        public bool IsClientConnected(Client client)
+        {
+            Client storedClient = Clients.Find(c => c.Equals(client));
+            return storedClient != null && storedClient.Sessions.Exists(session => session.Active);
+        }
+
         public void DisconnectClient(string token)
         {
             lock (loginLocker)

@@ -12,7 +12,7 @@ using Business;
 using System.Threading;
 using ShellProgressBar;
 
-namespace Client
+namespace ChatClient
 {
     public class ClientController
     {
@@ -278,7 +278,6 @@ namespace Client
                 {
                     clientToken = response.GetClientToken();
                     clientUsername = client.Username;
-
                     Console.WriteLine(ClientUI.LoginSuccessful());
                 }
                 else
@@ -575,7 +574,6 @@ namespace Client
                     if (readMessageResponse.HadSuccess())
                     {
                         messages = readMessageResponse.Messages();
-
                         messages.ForEach(m => Console.WriteLine(counterpart + ": " + m));
                     }
                     else

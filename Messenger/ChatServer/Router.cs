@@ -2,7 +2,7 @@
 using Business;
 using Protocol;
 
-namespace Server
+namespace ChatServer
 {
     public class Router
     {
@@ -97,8 +97,6 @@ namespace Server
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception thrown: " + e.Message);
-                Console.WriteLine(e.StackTrace);
                 conn.SendMessage(new object[] {ResponseCode.InternalServerError.GetHashCode(), "There was a problem in the server"});
             }
             finally

@@ -1,6 +1,6 @@
 ﻿using Protocol;
 
-namespace Server
+namespace ChatServer
 {
     public class FileCopier
     {
